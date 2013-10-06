@@ -179,6 +179,30 @@ app.cpp.s:
 	$(MAKE) -f CMakeFiles/electricplush.dir/build.make CMakeFiles/electricplush.dir/app.cpp.s
 .PHONY : app.cpp.s
 
+camera.o: camera.cpp.o
+.PHONY : camera.o
+
+# target to build an object file
+camera.cpp.o:
+	$(MAKE) -f CMakeFiles/electricplush.dir/build.make CMakeFiles/electricplush.dir/camera.cpp.o
+.PHONY : camera.cpp.o
+
+camera.i: camera.cpp.i
+.PHONY : camera.i
+
+# target to preprocess a source file
+camera.cpp.i:
+	$(MAKE) -f CMakeFiles/electricplush.dir/build.make CMakeFiles/electricplush.dir/camera.cpp.i
+.PHONY : camera.cpp.i
+
+camera.s: camera.cpp.s
+.PHONY : camera.s
+
+# target to generate assembly for a file
+camera.cpp.s:
+	$(MAKE) -f CMakeFiles/electricplush.dir/build.make CMakeFiles/electricplush.dir/camera.cpp.s
+.PHONY : camera.cpp.s
+
 default_shaders.o: default_shaders.cpp.o
 .PHONY : default_shaders.o
 
@@ -435,6 +459,9 @@ help:
 	@echo "... app.o"
 	@echo "... app.i"
 	@echo "... app.s"
+	@echo "... camera.o"
+	@echo "... camera.i"
+	@echo "... camera.s"
 	@echo "... default_shaders.o"
 	@echo "... default_shaders.i"
 	@echo "... default_shaders.s"
