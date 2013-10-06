@@ -43,8 +43,8 @@ glm::vec3 colors[] = {
     { glm::vec3(0.0f, 0.0f, 1.0f) }
 };
 
-GLuint attrib_vertex_coord = 0;
-GLuint attrib_vertex_color = 1;
+GLuint attrib_vertexCoord;
+GLuint attrib_vertexColor;
 
 short indices[] = { 0, 1, 2, 0, 1, 3, 4, 5, 6, 4, 5, 7 };
 
@@ -83,21 +83,21 @@ static void prepareDemo()
     colorBuffer = new ArrayBuffer(GL_STATIC_DRAW);
     colorBuffer->data(sizeof(colors), colors);
     
-    attrib_vertex_coord = testProgram->getAttribLocation("vertexCoord");
-    attrib_vertex_color = testProgram->getAttribLocation("vertexColor");
+    attrib_vertexCoord = testProgram->getAttribLocation("vertexCoord");
+    attrib_vertexColor = testProgram->getAttribLocation("vertexColor");
 
     posBuffer->bind();
-    glVertexAttribPointer(attrib_vertex_coord, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
+    glVertexAttribPointer(attrib_vertexCoord, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
 
     GLError::check("prepareDemo: after glVertexAttribPointer(attr_coord, ...)");
 
     colorBuffer->bind();
-    glVertexAttribPointer(attrib_vertex_color, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
+    glVertexAttribPointer(attrib_vertexColor, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
 
     GLError::check("prepareDemo: after glVertexAttribPointer(attr_color, ...)");
     
-    glEnableVertexAttribArray(attrib_vertex_coord);
-    glEnableVertexAttribArray(attrib_vertex_color);
+    glEnableVertexAttribArray(attrib_vertexCoord);
+    glEnableVertexAttribArray(attrib_vertexColor);
     
     GLError::check("prepareDemo: after glEnableVertexAttribArray()");
     
