@@ -8,7 +8,7 @@
 #include "shader.hpp"
 #include "shader_program.hpp"
 #include "vertex_format.hpp"
-#include "default_shaders.hpp"
+#include "camera.hpp"
 
 #include <array>
 #include <iostream>
@@ -54,6 +54,8 @@ short indices[] = { 0, 1, 2, 0, 1, 3, 4, 5, 6, 4, 5, 7 };
 ArrayBuffer *posBuffer;
 ArrayBuffer *colorBuffer;
 
+Camera testCamera(glm::vec3(0.0f, 0.0f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f));
+
 void redrawDemo()
 {
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
@@ -61,6 +63,8 @@ void redrawDemo()
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     
     testVAO->bind();
+    
+    testCamera.upload(uniform_modelMatrix, uniform_viewMatrix, uniform_projectionMatrix);
     
     glDrawArrays(GL_TRIANGLES, 0, 6);
     //glDrawElements(GL_TRIANGLES, sizeof(testIndices), GL_UNSIGNED_SHORT, (const GLvoid*) 0);

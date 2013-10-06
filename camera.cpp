@@ -1,6 +1,7 @@
 #include "camera.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace plush;
 
@@ -16,10 +17,22 @@ glm::mat4 Camera::modelMatrix() const
 
 glm::mat4 Camera::viewMatrix() const
 {
-    return glm::lookAt(m_coord, m_target, glm::vec3(0.0f, 0.0f, 1.0f));
+     return glm::lookAt(m_coord, m_target, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 glm::mat4 Camera::projectionMatrix() const
 {
     return glm::perspective(45.0f, 1.33f, 1.0f, 10.0f);
+}
+
+void Camera::upload(GLuint uniform_modelMatrix, GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix)
+{
+    glm::mat4 m;
+    
+    m = modelMatrix();
+    glUniformMatrix4fv(uniform_modelMatrix, 1, GL_FALSE, glm::value_ptr(m));
+    m = viewMatrix();
+    glUniformMatrix4fv(uniform_viewMatrix, 1, GL_FALSE, glm::value_ptr(m));
+    m = projectionMatrix();
+    glUniformMatrix4fv(uniform_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m));
 }
