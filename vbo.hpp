@@ -2,7 +2,6 @@
 #define VBO_HPP
 
 #include "gl.hpp"
-#include "gl_ref_object.hpp"
 
 #include <vector>
 

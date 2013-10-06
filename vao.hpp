@@ -1,7 +1,7 @@
 #ifndef VAO_HPP
 #define VAO_HPP
 
-#include "gl_ref_object.hpp"
+#include "gl.hpp"
 
 namespace plush {
     

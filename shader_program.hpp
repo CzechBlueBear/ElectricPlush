@@ -2,7 +2,6 @@
 #define SHADER_PROGRAM_HPP
 
 #include "gl.hpp"
-#include "gl_ref_object.hpp"
 #include "shader.hpp"
 
 namespace plush {
@@ -27,7 +26,7 @@ namespace plush {
         void attach(Shader &sh);
         
         /// Links the program.
-        /// Throws a runtime_error if the link fails.
+        /// Throws a GLError if the link fails.
         void link();
         
         /// Makes the program the active program in the current GL context.
