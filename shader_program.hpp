@@ -6,8 +6,10 @@
 #include "shader.hpp"
 
 namespace plush {
- 
-    /// Reference to a shader program in OpenGL memory.
+
+    /**
+     * An OpenGL shader program.
+     */
     class ShaderProgram  {
     protected:
         
@@ -31,8 +33,17 @@ namespace plush {
         /// Makes the program the active program in the current GL context.
         void use();
         
-        /// Returns the index of the named attribute in the program.
+        /**
+         * Returns the index of the named attribute in the program.
+         * Throws NoSuchAttrib if the attribute is not found.
+         */
         GLint getAttribLocation(const std::string &name);
+
+        /**
+         * Returns the index of the uniform in the program.
+         * Throws NoSuchUniform if the uniform is not found.
+         */
+        GLint getUniformLocation(const std::string &name);
     };
     
 }

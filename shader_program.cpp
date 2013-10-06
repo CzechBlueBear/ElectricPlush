@@ -68,7 +68,19 @@ GLint ShaderProgram::getAttribLocation(const std::string &name)
     GLError::check("ShaderProgram::getAttribLocation()");
     
     if (index < 0) {
-        throw GLError("ShaderProgram::getAttribLocation(): attribute not found: " + name);
+        throw NoSuchAttrib(name);
+    }
+
+    return index;
+}
+
+GLint ShaderProgram::getUniformLocation(const std::string &name)
+{
+    GLint index = glGetUniformLocation(m_id, static_cast<const GLchar*>(name.c_str()));
+    GLError::check("ShaderProgram::getUniformLocation");
+    
+    if (index < 0) {
+        throw NoSuchUniform(name);
     }
 
     return index;

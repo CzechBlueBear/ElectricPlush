@@ -40,3 +40,13 @@ void GLError::check(const std::string &where)
     
     throw GLError(where + ": " + errName);
 }
+
+NoSuchAttrib::NoSuchAttrib(const std::string &attribName)
+    : GLError("No such attribute: " + attribName)
+{
+}
+
+NoSuchUniform::NoSuchUniform(const std::string& uniformName)
+    : GLError("No such uniform: " + uniformName)
+{
+}

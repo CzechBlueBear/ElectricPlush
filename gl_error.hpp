@@ -24,6 +24,18 @@ namespace plush {
          */
         static void check(const std::string &where);
     };
+    
+    /// Thrown when a named attribute is not found in a shader program.
+    class NoSuchAttrib: public GLError {
+    public:
+        NoSuchAttrib(const std::string &attribName);
+    };
+    
+    /// Thrown when a named uniform is not found in a shader program.
+    class NoSuchUniform : public GLError {
+    public:
+        NoSuchUniform(const std::string &uniformName);
+    };
 }
 
 #endif

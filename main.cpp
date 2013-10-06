@@ -43,8 +43,8 @@ glm::vec3 colors[] = {
     { glm::vec3(0.0f, 0.0f, 1.0f) }
 };
 
-const GLuint ATTRIB_VERTEX_COORD = 0;
-const GLuint ATTRIB_VERTEX_COLOR = 1;
+GLuint attrib_vertex_coord = 0;
+GLuint attrib_vertex_color = 1;
 
 short indices[] = { 0, 1, 2, 0, 1, 3, 4, 5, 6, 4, 5, 7 };
 
@@ -67,7 +67,7 @@ void redrawDemo()
 static void prepareDemo()
 {
     testFragShader = new FragmentShader("shaders/trivial_color.fsh");
-    testVertShader = new VertexShader("shaders/trivial_coord_color.vsh");
+    testVertShader = new VertexShader("shaders/transform_coord_color.vsh");
     
     testProgram = new ShaderProgram();
     testProgram->attach(*testFragShader);
@@ -83,25 +83,21 @@ static void prepareDemo()
     colorBuffer = new ArrayBuffer(GL_STATIC_DRAW);
     colorBuffer->data(sizeof(colors), colors);
     
-    //GLint attr_coord = testProgram->getAttribLocation("coord");
-    //GLint attr_color = testProgram->getAttribLocation("color");
-
-    //GLError::check("prepareDemo: after getAttribLocation()");
+    attrib_vertex_coord = testProgram->getAttribLocation("vertexCoord");
+    attrib_vertex_color = testProgram->getAttribLocation("vertexColor");
 
     posBuffer->bind();
-    glVertexAttribPointer(ATTRIB_VERTEX_COORD, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
+    glVertexAttribPointer(attrib_vertex_coord, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
 
     GLError::check("prepareDemo: after glVertexAttribPointer(attr_coord, ...)");
 
     colorBuffer->bind();
-    glVertexAttribPointer(ATTRIB_VERTEX_COLOR, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
+    glVertexAttribPointer(attrib_vertex_color, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
 
     GLError::check("prepareDemo: after glVertexAttribPointer(attr_color, ...)");
     
-    glEnableVertexAttribArray(ATTRIB_VERTEX_COORD);
-    glEnableVertexAttribArray(ATTRIB_VERTEX_COLOR);
-    
-    glVertexAttrib4f(ATTRIB_VERTEX_COLOR, 1.0f, 0.0f, 0.0f, 0.0f);
+    glEnableVertexAttribArray(attrib_vertex_coord);
+    glEnableVertexAttribArray(attrib_vertex_color);
     
     GLError::check("prepareDemo: after glEnableVertexAttribArray()");
     
