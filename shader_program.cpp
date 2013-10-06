@@ -31,19 +31,27 @@ void ShaderProgram::link()
 
     GLint success = 0;
     GLchar log[1024] = { 0 };
+
+    // show link log if nonempty (it can contain warnings even if link succeeds)
+    glGetProgramInfoLog(m_id, sizeof(log), NULL, log);
+    if (log[0] != 0) {
+        std::cerr << "--- shader program link log ---\n" << log << "\n";
+    }
     
     glGetProgramiv(m_id, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(m_id, sizeof(log), NULL, log);
-        std::cerr << "error linking shader program:\n" << log << "\n";
         throw GLError("ShaderProgram::link(): link unsuccessful");
     }
 
+    // show validation log if nonempty
+    glGetProgramInfoLog(m_id, sizeof(log), NULL, log);
+    if (log[0] != 0) {
+        std::cerr << "--- shader program validation log ---\n" << log << "\n";
+    }
+    
     glValidateProgram(m_id);
     glGetProgramiv(m_id, GL_VALIDATE_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(m_id, sizeof(log), NULL, log);
-        std::cerr << "error validating shader program:\n" << log << "\n";
         throw GLError("ShaderProgram::link(): validation unsuccessful");
     }
 }

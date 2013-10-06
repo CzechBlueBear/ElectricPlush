@@ -19,10 +19,9 @@ namespace plush {
         ShaderProgram(const ShaderProgram &prog) = delete;
         ShaderProgram &operator=(const ShaderProgram &prog) = delete;
         ~ShaderProgram();
-        
+
         /// Attaches a shader to the program.
-        /// After attaching one or more shaders, the program must be relinked
-        /// to be usable again.
+        /// After attaching all shaders, link() must be called.
         void attach(Shader &sh);
         
         /// Links the program.

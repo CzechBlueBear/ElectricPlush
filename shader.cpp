@@ -38,13 +38,18 @@ void Shader::loadFromString(const std::string &text)
 
     glCompileShader(m_id);
     GLError::check("Shader::loadFromString(): after glCompileShader()");
+
+    // even if compilation succeeds, the log can still contain warnings
+    // so show it every time it's not empty
+    GLchar log[1024];
+    glGetShaderInfoLog(m_id, 1024, NULL, log);
+    if (log[0] != '\0') {
+        std::cerr << log << "\n";
+    }
     
     GLint success;
     glGetShaderiv(m_id, GL_COMPILE_STATUS, &success);
     if (!success) {
-        GLchar log[1024];
-        glGetShaderInfoLog(m_id, 1024, NULL, log);
-        std::cerr << "error compiling shader:\n" << log << "\n";
         throw GLError("Shader::loadFromString(): compilation failed");
     }
 }
