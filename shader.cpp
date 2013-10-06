@@ -83,7 +83,7 @@ FragmentShader::FragmentShader() : Shader(GL_FRAGMENT_SHADER)
 {
 }
 
-FragmentShader::FragmentShader(const std::string &filename): Shader(GL_FRAGMENT_SHADER, filename)
+FragmentShader::FragmentShader(const std::string &filename) : Shader(GL_FRAGMENT_SHADER, filename)
 {
 }
 
@@ -91,6 +91,6 @@ VertexShader::VertexShader(): Shader(GL_VERTEX_SHADER)
 {
 }
 
-VertexShader::VertexShader(const std::string &filename): Shader(GL_VERTEX_SHADER, filename)
+VertexShader::VertexShader(const std::string &filename) : Shader(GL_VERTEX_SHADER, filename)
 {
 }

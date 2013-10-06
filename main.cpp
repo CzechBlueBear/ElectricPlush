@@ -45,6 +45,9 @@ glm::vec3 colors[] = {
 
 GLuint attrib_vertexCoord;
 GLuint attrib_vertexColor;
+GLuint uniform_modelMatrix;
+GLuint uniform_viewMatrix;
+GLuint uniform_projectionMatrix;
 
 short indices[] = { 0, 1, 2, 0, 1, 3, 4, 5, 6, 4, 5, 7 };
 
@@ -74,6 +77,12 @@ static void prepareDemo()
     testProgram->attach(*testVertShader);
     testProgram->link();
     testProgram->use();
+
+    attrib_vertexCoord = testProgram->getAttribLocation("vertexCoord");
+    attrib_vertexColor = testProgram->getAttribLocation("vertexColor");
+    uniform_modelMatrix = testProgram->getUniformLocation("modelMatrix");
+    uniform_projectionMatrix = testProgram->getUniformLocation("projectionMatrix");
+    uniform_viewMatrix = testProgram->getUniformLocation("viewMatrix");
     
     testVAO = new VAO();
     testVAO->bind();
@@ -82,9 +91,6 @@ static void prepareDemo()
     posBuffer->data(sizeof(positions), positions);
     colorBuffer = new ArrayBuffer(GL_STATIC_DRAW);
     colorBuffer->data(sizeof(colors), colors);
-    
-    attrib_vertexCoord = testProgram->getAttribLocation("vertexCoord");
-    attrib_vertexColor = testProgram->getAttribLocation("vertexColor");
 
     posBuffer->bind();
     glVertexAttribPointer(attrib_vertexCoord, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
