@@ -71,6 +71,21 @@ void redrawDemo()
     GLError::check("redrawDemo()");
 }
 
+void onKey(const SDL_KeyboardEvent &event)
+{
+    if (event.type == SDL_KEYDOWN) {
+        switch (event.keysym.sym) {
+            case SDLK_UP:
+                testCamera.setCoord(testCamera.getCoord() + 0.2f * testCamera.forwardVector());
+                break;
+                
+            case SDLK_DOWN:
+                testCamera.setCoord(testCamera.getCoord() - 0.2f * testCamera.forwardVector());
+                break;
+        }
+    }
+}
+
 static void prepareDemo()
 {
     testFragShader = new FragmentShader("shaders/trivial_color.fsh");
@@ -114,6 +129,7 @@ static void prepareDemo()
     navEvHandler.makeCurrent();
     
     App::setRedrawFunc(redrawDemo);
+    App::setKeyFunc(onKey);
 }
 
 int main(int argc, char **argv)

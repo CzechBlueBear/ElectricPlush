@@ -17,9 +17,16 @@ namespace plush {
     public:
         
         Camera(glm::vec3 coord, glm::vec3 target, float fov=45.0f, float aspect=1.33f);
+        const glm::vec3 &getCoord() const { return m_coord; }
+        void setCoord(const glm::vec3 &newCoord);
+        
         glm::mat4 modelMatrix() const;
         glm::mat4 viewMatrix() const;
         glm::mat4 projectionMatrix() const;
+        
+        glm::vec3 forwardVector() const;
+        
+        /// Uploads the camera matrices to shader uniforms.
         void upload(GLuint uniform_modelMatrix, GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix);
     };
 }

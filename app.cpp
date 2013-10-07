@@ -28,10 +28,8 @@ SDL_TimerID redrawTimer;
  */
 const Uint32 REDRAW_TIMER_INTERVAL = 25;
 
-/**
- * Pointer to function to be called to redraw the screen.
- */
 void (*App::redrawFunc)() = nullptr;
+void (*App::keyFunc)(const SDL_KeyboardEvent &event) = nullptr;
 
 /**
  * Callback that is executed in the timer thread when the redraw timer fires.
@@ -78,7 +76,7 @@ bool App::init()
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5); 
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     
@@ -138,9 +136,6 @@ void App::finish()
 
 void App::eventLoop()
 {
-    if (!redrawFunc)
-        throw std::logic_error("App::eventLoop(): redrawFunc not set");
-
     SDL_Event event;
     while (1) {
         while (SDL_PollEvent(&event)) {
@@ -159,12 +154,16 @@ void App::eventLoop()
                     
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
-                    EventHandler::current()->onKeyboard(event.key);
+                    if (keyFunc) {
+                        keyFunc(event.key);
+                    }
                     break;
 
                 default:
                     if (event.type == redrawTimerEventType) {
-                        redrawFunc();
+                        if (redrawFunc) {
+                            redrawFunc();
+                        }
                         SDL_GL_SwapWindow(theWindow);
                     }
                     break;
@@ -178,4 +177,9 @@ void App::eventLoop()
 void App::setRedrawFunc(void (*fn)())
 {
     redrawFunc = fn;
+}
+
+void App::setKeyFunc(void (*fn)(const SDL_KeyboardEvent&))
+{
+    keyFunc = fn;
 }

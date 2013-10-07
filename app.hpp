@@ -3,6 +3,8 @@
 
 #include "event_handler.hpp"
 
+#include <SDL2/SDL.h>
+
 namespace plush {
     class App {
     protected:
@@ -21,6 +23,9 @@ namespace plush {
          * Pointer to the redraw function.
          */
         static void (*redrawFunc)();
+
+        /// Keypress/keyrelease callback.
+        static void (*keyFunc)(const SDL_KeyboardEvent &event);
         
     public:
         
@@ -49,6 +54,8 @@ namespace plush {
          * The redraw function is called from eventLoop().
          */
         static void setRedrawFunc(void (*fn)());
+        
+        static void setKeyFunc(void (*fn)(const SDL_KeyboardEvent&));
     };
 }
 
