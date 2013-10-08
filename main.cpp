@@ -82,6 +82,16 @@ void onKey(const SDL_KeyboardEvent &event)
             case SDLK_DOWN:
                 testCamera.setCoord(testCamera.getCoord() - 0.2f * testCamera.forwardVector());
                 break;
+                
+            case SDLK_LEFT:
+                testCamera.setAzimuth(testCamera.getAzimuth() - 0.5f);
+                std::cerr << "azimuth now: " << testCamera.getAzimuth() << "\n";
+                break;
+                
+            case SDLK_RIGHT:
+                testCamera.setAzimuth(testCamera.getAzimuth() + 0.5f);
+                std::cerr << "azimuth now: " << testCamera.getAzimuth() << "\n";
+                break;
         }
     }
 }

@@ -7,7 +7,7 @@
 using namespace plush;
 
 Camera::Camera(glm::vec3 coord, glm::vec3 target, float fov, float aspect)
-    : m_coord(coord), m_target(target), m_fov(fov), m_aspect(aspect)
+    : m_fov(fov), m_aspect(aspect), m_coord(coord), m_target(target), m_azimuth(0.0f)
 {
 }
 
@@ -23,7 +23,9 @@ glm::mat4 Camera::modelMatrix() const
 
 glm::mat4 Camera::viewMatrix() const
 {
-     return glm::lookAt(m_coord, m_target, glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), m_azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 transMatrix = glm::translate(rotMatrix, -m_coord);
+    return transMatrix;
 }
 
 glm::mat4 Camera::projectionMatrix() const
