@@ -203,30 +203,6 @@ camera.cpp.s:
 	$(MAKE) -f CMakeFiles/electricplush.dir/build.make CMakeFiles/electricplush.dir/camera.cpp.s
 .PHONY : camera.cpp.s
 
-default_shaders.o: default_shaders.cpp.o
-.PHONY : default_shaders.o
-
-# target to build an object file
-default_shaders.cpp.o:
-	$(MAKE) -f CMakeFiles/electricplush.dir/build.make CMakeFiles/electricplush.dir/default_shaders.cpp.o
-.PHONY : default_shaders.cpp.o
-
-default_shaders.i: default_shaders.cpp.i
-.PHONY : default_shaders.i
-
-# target to preprocess a source file
-default_shaders.cpp.i:
-	$(MAKE) -f CMakeFiles/electricplush.dir/build.make CMakeFiles/electricplush.dir/default_shaders.cpp.i
-.PHONY : default_shaders.cpp.i
-
-default_shaders.s: default_shaders.cpp.s
-.PHONY : default_shaders.s
-
-# target to generate assembly for a file
-default_shaders.cpp.s:
-	$(MAKE) -f CMakeFiles/electricplush.dir/build.make CMakeFiles/electricplush.dir/default_shaders.cpp.s
-.PHONY : default_shaders.cpp.s
-
 event_handler.o: event_handler.cpp.o
 .PHONY : event_handler.o
 
@@ -462,9 +438,6 @@ help:
 	@echo "... camera.o"
 	@echo "... camera.i"
 	@echo "... camera.s"
-	@echo "... default_shaders.o"
-	@echo "... default_shaders.i"
-	@echo "... default_shaders.s"
 	@echo "... event_handler.o"
 	@echo "... event_handler.i"
 	@echo "... event_handler.s"
