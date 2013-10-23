@@ -1,5 +1,7 @@
 #include "vao.hpp"
+#include "vbo.hpp"
 #include "gl_error.hpp"
+#include "shader_program.hpp"
 
 #include <stdexcept>
 
@@ -20,5 +22,43 @@ VAO::~VAO()
 void VAO::bind()
 {
     glBindVertexArray(m_id);
-    GLError::check("VAO::bind()");
+}
+
+void VAO::bindNull()
+{
+    glBindVertexArray(0);
+}
+
+void VAO::enableVertexAttribArray(const std::string &attribName)
+{
+    GLint attrib = ShaderProgram::current().getAttribLocation(attribName);
+    glEnableVertexAttribArray(attrib);
+}
+
+void VAO::vertexAttribPointer(const std::string &attribName,
+                              VBO &buf,
+                              unsigned int valueCount, GLenum valueType,
+                              bool normalize,
+                              int stride, int offset)
+{
+    GLint attrib = ShaderProgram::current().getAttribLocation(attribName);
+    buf.bind();
+    glVertexAttribPointer(attrib, valueCount, valueType, normalize, stride,
+                          reinterpret_cast<GLvoid*>(offset));
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// VAOBinder
+/////////////////////////////////////////////////////////////////////////////
+
+VAOBinder::VAOBinder(VAO& vao)
+    : m_vao(vao)
+{
+    m_vao.bind();
+}
+
+VAOBinder::~VAOBinder()
+{
+    VAO::bindNull();
 }

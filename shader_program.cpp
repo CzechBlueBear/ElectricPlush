@@ -6,6 +6,35 @@
 
 using namespace plush;
 
+/////////////////////////////////////////////////////////////////////////////
+// ShaderProgramProxy
+/////////////////////////////////////////////////////////////////////////////
+
+void ShaderProgramProxy::use()
+{
+    glUseProgram(m_id);
+}
+
+GLint ShaderProgramProxy::getAttribLocation(const std::string &name)
+{
+    GLint index = glGetAttribLocation(m_id, static_cast<const GLchar*>(name.c_str()));   
+    if (index < 0)
+        throw NoSuchAttrib(name);
+    return index;
+}
+
+GLint ShaderProgramProxy::getUniformLocation(const std::string &name)
+{
+    GLint index = glGetUniformLocation(m_id, static_cast<const GLchar*>(name.c_str()));
+    if (index < 0)
+        throw NoSuchUniform(name);
+    return index;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// ShaderProgram
+/////////////////////////////////////////////////////////////////////////////
+
 ShaderProgram::ShaderProgram()
     : m_id(0)
 {
@@ -40,7 +69,7 @@ void ShaderProgram::link()
     
     glGetProgramiv(m_id, GL_LINK_STATUS, &success);
     if (!success) {
-        throw GLError("ShaderProgram::link(): link unsuccessful");
+        throw ShaderProgramLinkError(log);
     }
 
     // show validation log if nonempty
@@ -52,36 +81,38 @@ void ShaderProgram::link()
     glValidateProgram(m_id);
     glGetProgramiv(m_id, GL_VALIDATE_STATUS, &success);
     if (!success) {
-        throw GLError("ShaderProgram::link(): validation unsuccessful");
+        throw ShaderProgramValidationError(log);
     }
 }
 
 void ShaderProgram::use()
 {
-    glUseProgram(m_id);
-    GLError::check("ShaderProgram::use()");
+    proxy().use();
+}
+
+void ShaderProgram::useNull()
+{
+    glUseProgram(0);
 }
 
 GLint ShaderProgram::getAttribLocation(const std::string &name)
 {
-    GLint index = glGetAttribLocation(m_id, static_cast<const GLchar*>(name.c_str()));
-    GLError::check("ShaderProgram::getAttribLocation()");
-    
-    if (index < 0) {
-        throw NoSuchAttrib(name);
-    }
-
-    return index;
+    return proxy().getAttribLocation(name);
 }
 
 GLint ShaderProgram::getUniformLocation(const std::string &name)
 {
-    GLint index = glGetUniformLocation(m_id, static_cast<const GLchar*>(name.c_str()));
-    GLError::check("ShaderProgram::getUniformLocation");
-    
-    if (index < 0) {
-        throw NoSuchUniform(name);
-    }
+    return proxy().getUniformLocation(name);
+}
 
-    return index;
+ShaderProgramProxy ShaderProgram::current()
+{
+    GLint id;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &id);
+    return ShaderProgramProxy(id);
+}
+
+ShaderProgramProxy ShaderProgram::proxy()
+{
+    return ShaderProgramProxy(m_id);
 }

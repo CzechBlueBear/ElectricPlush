@@ -7,7 +7,7 @@
 #include <stdexcept>
 
 namespace plush {
-    
+
     /**
      * An OpenGL error.
      */
@@ -26,7 +26,7 @@ namespace plush {
     };
     
     /// Thrown when a named attribute is not found in a shader program.
-    class NoSuchAttrib: public GLError {
+    class NoSuchAttrib : public GLError {
     public:
         NoSuchAttrib(const std::string &attribName);
     };
@@ -35,6 +35,18 @@ namespace plush {
     class NoSuchUniform : public GLError {
     public:
         NoSuchUniform(const std::string &uniformName);
+    };
+    
+    /// Thrown when a shader program link fails.
+    class ShaderProgramLinkError : public GLError {
+    public:
+        ShaderProgramLinkError(const std::string &log);
+    };
+    
+    /// Thrown when a shader program validation fails.
+    class ShaderProgramValidationError : public GLError {
+    public:
+        ShaderProgramValidationError(const std::string &log);
     };
 }
 

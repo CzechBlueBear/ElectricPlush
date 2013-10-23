@@ -1,5 +1,6 @@
 #include "vbo.hpp"
 #include "gl_error.hpp"
+#include "shader_program.hpp"
 
 #include <stdexcept>
 #include <algorithm>
@@ -33,9 +34,17 @@ void VBO::data(size_t byteSize, const void* src)
     GLError::check("VBO::data()");
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// ArrayBuffer
+/////////////////////////////////////////////////////////////////////////////
+
 ArrayBuffer::ArrayBuffer(GLenum usage) : VBO(GL_ARRAY_BUFFER, usage)
 {
 }
+
+/////////////////////////////////////////////////////////////////////////////
+// ElementArrayBuffer
+/////////////////////////////////////////////////////////////////////////////
 
 ElementArrayBuffer::ElementArrayBuffer(GLenum usage) : VBO(GL_ELEMENT_ARRAY_BUFFER, usage)
 {

@@ -9,6 +9,7 @@
 #include "shader_program.hpp"
 #include "vertex_format.hpp"
 #include "camera.hpp"
+#include "cube.hpp"
 
 #include <array>
 #include <iostream>
@@ -43,18 +44,17 @@ glm::vec3 colors[] = {
     { glm::vec3(0.0f, 0.0f, 1.0f) }
 };
 
-GLuint attrib_vertexCoord;
-GLuint attrib_vertexColor;
 GLuint uniform_modelMatrix;
 GLuint uniform_viewMatrix;
 GLuint uniform_projectionMatrix;
 
 short indices[] = { 0, 1, 2, 0, 1, 3, 4, 5, 6, 4, 5, 7 };
 
-ArrayBuffer *posBuffer;
-ArrayBuffer *colorBuffer;
+VertexAttribBuffer *posBuffer, *colorBuffer;
 
 Camera testCamera(glm::vec3(0.0f, 0.0f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f));
+
+Cube *testCube;
 
 void redrawDemo()
 {
@@ -67,7 +67,10 @@ void redrawDemo()
     testCamera.upload(uniform_modelMatrix, uniform_viewMatrix, uniform_projectionMatrix);
     
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    //glDrawElements(GL_TRIANGLES, sizeof(testIndices), GL_UNSIGNED_SHORT, (const GLvoid*) 0);
+    ////glDrawElements(GL_TRIANGLES, sizeof(testIndices), GL_UNSIGNED_SHORT, (const GLvoid*) 0);
+    
+    testCube->render();
+    
     GLError::check("redrawDemo()");
 }
 
@@ -107,34 +110,28 @@ static void prepareDemo()
     testProgram->link();
     testProgram->use();
 
-    attrib_vertexCoord = testProgram->getAttribLocation("vertexCoord");
-    attrib_vertexColor = testProgram->getAttribLocation("vertexColor");
     uniform_modelMatrix = testProgram->getUniformLocation("modelMatrix");
     uniform_projectionMatrix = testProgram->getUniformLocation("projectionMatrix");
     uniform_viewMatrix = testProgram->getUniformLocation("viewMatrix");
     
     testVAO = new VAO();
-    testVAO->bind();
+    {
+        VAOBinder vaoBinder(*testVAO);
 
-    posBuffer = new ArrayBuffer(GL_STATIC_DRAW);
-    posBuffer->data(sizeof(positions), positions);
-    colorBuffer = new ArrayBuffer(GL_STATIC_DRAW);
-    colorBuffer->data(sizeof(colors), colors);
+        posBuffer = new VertexAttribBuffer(GL_STATIC_DRAW);
+        posBuffer->data(sizeof(positions), positions);
+        colorBuffer = new VertexAttribBuffer(GL_STATIC_DRAW);
+        colorBuffer->data(sizeof(colors), colors);
 
-    posBuffer->bind();
-    glVertexAttribPointer(attrib_vertexCoord, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
+        VAO::vertexAttribPointer("vertexCoord", *posBuffer, 3, GL_FLOAT, false, 0, 0);
+        VAO::vertexAttribPointer("vertexColor", *colorBuffer, 3, GL_FLOAT, false, 0, 0);
+        
+        VAO::enableVertexAttribArray("vertexCoord");
+        VAO::enableVertexAttribArray("vertexColor");
+    }
 
-    GLError::check("prepareDemo: after glVertexAttribPointer(attr_coord, ...)");
-
-    colorBuffer->bind();
-    glVertexAttribPointer(attrib_vertexColor, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<const GLvoid *>(0));
-
-    GLError::check("prepareDemo: after glVertexAttribPointer(attr_color, ...)");
-    
-    glEnableVertexAttribArray(attrib_vertexCoord);
-    glEnableVertexAttribArray(attrib_vertexColor);
-    
-    GLError::check("prepareDemo: after glEnableVertexAttribArray()");
+    testCube = new Cube();
+    testCube->prepare();
     
     navEvHandler.makeCurrent();
     

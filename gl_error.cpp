@@ -1,5 +1,6 @@
 #include "gl_error.hpp"
 #include "gl.hpp"
+#include "shader.hpp"
 
 #include <string>
 
@@ -50,3 +51,14 @@ NoSuchUniform::NoSuchUniform(const std::string& uniformName)
     : GLError("No such uniform: " + uniformName)
 {
 }
+
+ShaderProgramLinkError::ShaderProgramLinkError(const std::string &log)
+    : GLError("Shader program link error: " + log)
+{
+}
+
+ShaderProgramValidationError::ShaderProgramValidationError(const std::string &log)
+    : GLError("Shader program validation error: " + log)
+{
+}
+    

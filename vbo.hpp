@@ -3,7 +3,7 @@
 
 #include "gl.hpp"
 
-#include <vector>
+#include <string>
 
 namespace plush {
  
@@ -30,16 +30,14 @@ namespace plush {
         VBO(const VBO &src) = delete;
         VBO &operator =(const VBO &src) = delete;
         
-        /**
-         * Binds the buffer object to its target.
-         */
+        /// Binds the buffer object to its target.
         void bind();
         
         /**
          * Binds the buffer object to its target, resizes it as requested,
          * and fills it with data (if @a src is not null).
          * 
-         * The object stays bound after the operation.
+         * The VBO stays bound after the call returns.
          */
         void data(size_t byteSize, const void* src);
     };
@@ -52,7 +50,23 @@ namespace plush {
     public:
         
         ArrayBuffer(GLenum usage);
+
+        /**
+         * Binds the array buffer and establishes a link between
+         * the buffer contents and the given vertex attribute
+         * (using the current shader program).
+         * 
+         * The buffer stays bound after the call returns.
+         * It can be unbound any time without affecting the link between
+         * the buffer and the attribute.
+         */
+        void vertexAttribPointer(const std::string &attribName,
+                                 unsigned int valueCount, GLenum valueType,
+                                 bool normalize,
+                                 int stride, int offset);
     };
+    
+    typedef ArrayBuffer VertexAttribBuffer;
     
     /**
      * A vertex buffer object that binds to the GL_ELEMENT_ARRAY_BUFFER target.
