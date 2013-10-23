@@ -36,6 +36,9 @@ static const short cubeIndices[] = {
     0, 1, 2, 0, 2, 3,                   // front side
     4, 5, 6, 4, 6, 7,                   // back side
     8, 9, 10, 8, 10, 11,                // left side
+    12, 13, 14, 12, 14, 15,             // right side
+    16, 17, 18, 16, 18, 19,             // bottom side
+    20, 21, 22, 20, 22, 23,             // top side
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -71,7 +74,7 @@ void CubeModel::render()
 {
     vao.bind();
 
-    glDrawElements(GL_TRIANGLES, sizeof(cubeIndices)/3, GL_UNSIGNED_SHORT, (GLvoid*) 0);
+    glDrawElements(GL_TRIANGLES, sizeof(cubeIndices)/3*sizeof(float), GL_UNSIGNED_SHORT, (GLvoid*) 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
