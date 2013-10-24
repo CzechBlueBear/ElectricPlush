@@ -43,7 +43,7 @@ namespace plush {
         
         /**
          * The event loop.
-         * Repeatedly processes events and calls the current event handler to handle them.
+         * Repeatedly processes events and calls the calbacks to handle them.
          * Returns when the application is requested to quit.
          */
         static void eventLoop();

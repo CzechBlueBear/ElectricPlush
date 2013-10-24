@@ -144,12 +144,12 @@ void App::eventLoop()
                     return;
                     
                 case SDL_MOUSEMOTION:
-                    EventHandler::current()->onMouseMotion(event.motion);
+                    //EventHandler::current()->onMouseMotion(event.motion);
                     break;
                     
                 case SDL_MOUSEBUTTONDOWN:
                 case SDL_MOUSEBUTTONUP:
-                    EventHandler::current()->onMouseButton(event.button);
+                    //EventHandler::current()->onMouseButton(event.button);
                     break;
                     
                 case SDL_KEYDOWN:
