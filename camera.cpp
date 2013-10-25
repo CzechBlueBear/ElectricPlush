@@ -7,8 +7,8 @@
 
 using namespace plush;
 
-Camera::Camera(glm::vec3 coord, glm::vec3 target, float fov, float aspect)
-    : m_fov(fov), m_aspect(aspect), m_coord(coord), m_target(target), m_azimuth(0.0f)
+Camera::Camera(const glm::vec3 &coord, float fov, float aspect)
+    : m_fov(fov), m_aspect(aspect), m_coord(coord), m_azimuth(0.0f)
 {
 }
 

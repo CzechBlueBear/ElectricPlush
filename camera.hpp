@@ -9,16 +9,25 @@ namespace plush {
     class Camera {
     protected:
         
-        float m_fov;            ///< Field of view (in degrees).
-        float m_aspect;         ///< Aspect ratio of the viewport.
-        glm::vec3 m_coord;      ///< Coordinates of the camera in world space.
-        glm::vec3 m_target;     ///< Target (point the camera looks at).
-        float m_azimuth;        ///< Azimuth (in degrees) in world space.
-        float m_elevation;      ///< Elevation (in degrees).
+        /// Field of view (in degrees).
+        float m_fov = 45.0f;
+        
+        /// Aspect ratio of the viewport.
+        float m_aspect = 1.33f;
+
+        /// Coordinates of the camera in world space.
+        glm::vec3 m_coord = glm::vec3(0, 0, 0);
+        
+        /// Azimuth (in degrees, deviation from north, clockwise) in world space.
+        float m_azimuth = 0.0f;
+        
+        /// Elevation (in degrees, 0 is horizontal, + means up, - is down).
+        float m_elevation = 0.0f;
         
     public:
         
-        Camera(glm::vec3 coord, glm::vec3 target, float fov=45.0f, float aspect=1.33f);
+        Camera() { }
+        Camera(const glm::vec3 &coord, float fov=45.0f, float aspect=1.33f);
         
         const glm::vec3 &getCoord() const { return m_coord; }
         void setCoord(const glm::vec3 &newCoord);
