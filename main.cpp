@@ -18,19 +18,50 @@
 
 using namespace plush;
 
-FragmentShader *testFragShader;
-VertexShader *testVertShader;
-ShaderProgram *testProgram;
+class MyApp : public App {
+protected:
+    
+    FragmentShader *testFragShader;
+    VertexShader *testVertShader;
+    ShaderProgram *testProgram;
 
-GLuint uniform_modelMatrix;
-GLuint uniform_viewMatrix;
-GLuint uniform_projectionMatrix;
+    GLuint uniform_modelMatrix;
+    GLuint uniform_viewMatrix;
+    GLuint uniform_projectionMatrix;
 
-Camera testCamera(glm::vec3(0.0f, 0.0f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f));
+    Camera testCamera;
 
-Cube *testCube;
+    Cube *testCube;
 
-void redrawDemo()
+public:
+    
+    MyApp();
+    void onRedraw() override;
+    void onKey(const SDL_KeyboardEvent &event) override;
+};
+
+MyApp::MyApp()
+{
+    testFragShader = new FragmentShader("shaders/trivial_color.fsh");
+    testVertShader = new VertexShader("shaders/transform_coord_color.vsh");
+
+    testProgram = new ShaderProgram();
+    testProgram->attach(*testFragShader);
+    testProgram->attach(*testVertShader);
+    testProgram->link();
+    testProgram->use();
+
+    uniform_modelMatrix = testProgram->getUniformLocation("modelMatrix");
+    uniform_projectionMatrix = testProgram->getUniformLocation("projectionMatrix");
+    uniform_viewMatrix = testProgram->getUniformLocation("viewMatrix");
+
+    testCamera.setCoord(glm::vec3(0.0f, 0.0f, 1.5f));
+    
+    testCube = new Cube();
+    testCube->prepare();
+}
+
+void MyApp::onRedraw()
 {
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
 
@@ -43,7 +74,7 @@ void redrawDemo()
     GLError::check("redrawDemo()");
 }
 
-void onKey(const SDL_KeyboardEvent &event)
+void MyApp::onKey(const SDL_KeyboardEvent &event)
 {
     if (event.type == SDL_KEYDOWN) {
         switch (event.keysym.sym) {
@@ -76,37 +107,14 @@ void onKey(const SDL_KeyboardEvent &event)
     }
 }
 
-static void prepareDemo()
-{
-    testFragShader = new FragmentShader("shaders/trivial_color.fsh");
-    testVertShader = new VertexShader("shaders/transform_coord_color.vsh");
-    
-    testProgram = new ShaderProgram();
-    testProgram->attach(*testFragShader);
-    testProgram->attach(*testVertShader);
-    testProgram->link();
-    testProgram->use();
-
-    uniform_modelMatrix = testProgram->getUniformLocation("modelMatrix");
-    uniform_projectionMatrix = testProgram->getUniformLocation("projectionMatrix");
-    uniform_viewMatrix = testProgram->getUniformLocation("viewMatrix");
-
-    testCube = new Cube();
-    testCube->prepare();
-    
-    App::setRedrawFunc(redrawDemo);
-    App::setKeyFunc(onKey);
-}
-
 int main(int argc, char **argv)
 {
-    if (!App::init())
-        return 1;
-
-    prepareDemo(); 
-    App::eventLoop();
+    MyApp app;
     
-finish:
-    App::finish();
+    if (!app.ok())
+        return 1;
+ 
+    app.eventLoop();
+    
     return 0;
 }

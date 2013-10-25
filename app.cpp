@@ -6,31 +6,14 @@
 
 using namespace plush;
 
-SDL_Window *App::theWindow = nullptr;
-SDL_GLContext App::theGLContext = nullptr;
-
 /////////////////////////////////////////////////////////////////////////////
 // Redraw-related stuff
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * Registered event type for the timer event.
- */
-Uint32 redrawTimerEventType;
-
-/**
- * ID of the timer used for periodic redraws.
- */
-SDL_TimerID redrawTimer;
-
-/**
  * How often the timer requests a redraw (25 ms -> 40 frames per second).
  */
 const Uint32 REDRAW_TIMER_INTERVAL = 25;
-
-void (*App::redrawFunc)() = nullptr;
-void (*App::keyFunc)(const SDL_KeyboardEvent &event) = nullptr;
-void (*App::mouseMotionFunc)(const SDL_MouseMotionEvent &event) = nullptr;
 
 /**
  * Callback that is executed in the timer thread when the redraw timer fires.
@@ -39,8 +22,10 @@ void (*App::mouseMotionFunc)(const SDL_MouseMotionEvent &event) = nullptr;
  */
 static Uint32 redrawTimerCallback(Uint32 interval, void *userData)
 {
+    RedrawTimerCallbackUserData *uData = static_cast<RedrawTimerCallbackUserData*>(userData);
+    
     SDL_Event event;
-    event.type = redrawTimerEventType;
+    event.type = uData->eventTypeToSend;
     event.user.code = 0;
     event.user.data1 = nullptr;
     event.user.data2 = nullptr;
@@ -54,25 +39,31 @@ static Uint32 redrawTimerCallback(Uint32 interval, void *userData)
 // App
 /////////////////////////////////////////////////////////////////////////////
 
-bool App::init()
+App::App()
+    : m_ok(false), m_window(nullptr), m_GLContext(nullptr),
+    m_redrawTimerEventID(static_cast<Uint32>(-1)),
+    m_redrawTimer(0),
+    m_redrawFunc(nullptr),
+    m_keyFunc(nullptr),
+    m_mouseMotionFunc(nullptr)
 {
     GLenum err;
     
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "Error initializing SDL: " << SDL_GetError() << "\n";
-        return false;
+        return;
     }
 
-    theWindow = SDL_CreateWindow("Electric Plush",
+    m_window = SDL_CreateWindow("Electric Plush",
                                  
                                  // let the window manager place this window
                                  SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                  
                                  1024, 768,
                                  SDL_WINDOW_OPENGL);
-    if (!theWindow) {
-        std::cerr << "Error opening window: " << SDL_GetError() << "\n";
-        goto fail;
+    if (!m_window) {
+        std::cerr << "Error opening SDL window: " << SDL_GetError() << "\n";
+        return;
     }
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
@@ -81,57 +72,44 @@ bool App::init()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     
-    theGLContext = SDL_GL_CreateContext(theWindow);
-    if (!theGLContext) {
+    m_GLContext = SDL_GL_CreateContext(m_window);
+    if (!m_GLContext) {
         std::cerr << "Error creating SDL GL context: " << SDL_GetError() << "\n";
-        goto fail;
+        return;
     }
 
-    SDL_GL_MakeCurrent(theWindow, theGLContext);
+    SDL_GL_MakeCurrent(m_window, m_GLContext);
     
     err = glewInit();
     if (err != GLEW_OK) {
         std::cerr << "Error initializing GLEW: " << glewGetErrorString(err) << "\n";
-        goto fail;
+        return;
     }
     
-    redrawTimerEventType = SDL_RegisterEvents(1);
-    if (redrawTimerEventType == (Uint32)(-1)) {
+    m_redrawTimerEventID = SDL_RegisterEvents(1);
+    if (m_redrawTimerEventID == (Uint32)(-1)) {
         std::cerr << "Error: SDL_RegisterEvents(): " << SDL_GetError() << "\n";
-        goto fail;
+        return;
     }
     
-    redrawTimer = SDL_AddTimer(REDRAW_TIMER_INTERVAL, redrawTimerCallback, nullptr);
-    if (!redrawTimer) {
+    m_redrawTimerCallbackUserData.eventTypeToSend = m_redrawTimerEventID;
+    m_redrawTimer = SDL_AddTimer(REDRAW_TIMER_INTERVAL, redrawTimerCallback, &m_redrawTimerCallbackUserData);
+    if (!m_redrawTimer) {
         std::cerr << "Error: SDL_AddTimer(): " << SDL_GetError() << "\n";
-        goto fail;
+        return;
     }
     
-    return true;
-
-fail:
-    if (theGLContext) {
-        SDL_GL_DeleteContext(theGLContext);
-        theGLContext = nullptr;
-    }
-    if (theWindow) {
-        SDL_DestroyWindow(theWindow);
-        theWindow = nullptr;
-    }
-    SDL_Quit();
-    return false;
+    m_ok = true;
 }
 
-void App::finish()
+App::~App()
 {
-    if (theGLContext) {
-        SDL_GL_DeleteContext(theGLContext);
-        theGLContext = nullptr;
-    }
-    if (theWindow) {
-        SDL_DestroyWindow(theWindow);
-        theWindow = nullptr;
-    }
+    if (m_GLContext)
+        SDL_GL_DeleteContext(m_GLContext);
+
+    if (m_window)
+        SDL_DestroyWindow(m_window);
+
     SDL_Quit();
 }
 
@@ -145,44 +123,37 @@ void App::eventLoop()
                     return;
                     
                 case SDL_MOUSEMOTION:
-                    if (mouseMotionFunc) {
-                        mouseMotionFunc(event.motion);
-                    }
+                    onMouseMotion(event.motion);
                     break;
                     
                 case SDL_MOUSEBUTTONDOWN:
                 case SDL_MOUSEBUTTONUP:
-                    //EventHandler::current()->onMouseButton(event.button);
                     break;
                     
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
-                    if (keyFunc) {
-                        keyFunc(event.key);
-                    }
+                    onKey(event.key);
                     break;
 
                 default:
-                    if (event.type == redrawTimerEventType) {
-                        if (redrawFunc) {
-                            redrawFunc();
-                        }
-                        SDL_GL_SwapWindow(theWindow);
+                    if (event.type == m_redrawTimerEventID) {
+                        onRedraw();
+                        SDL_GL_SwapWindow(m_window);
                     }
                     break;
             }
         }
-        
-        // EventHandler::current()->onIdle();
     }
 }
 
-void App::setRedrawFunc(void (*fn)())
+void App::onRedraw()
 {
-    redrawFunc = fn;
 }
 
-void App::setKeyFunc(void (*fn)(const SDL_KeyboardEvent&))
+void App::onKey(const SDL_KeyboardEvent &event)
 {
-    keyFunc = fn;
+}
+
+void App::onMouseMotion(const SDL_MouseMotionEvent &event)
+{
 }

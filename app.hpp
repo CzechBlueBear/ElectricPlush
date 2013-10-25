@@ -6,65 +6,79 @@
 #include <SDL2/SDL.h>
 
 namespace plush {
+    
+    struct RedrawTimerCallbackUserData {
+        
+        /**
+         * Event type to generate when the redraw timer fires.
+         * This is the value of App::m_redrawTimerEventID of the App.
+         */
+        Uint32 eventTypeToSend;
+    };
+
     class App {
     protected:
 
-        /**
-         * Window used for graphics.
-         */
-        static SDL_Window *theWindow;
+        /// True if the app is properly initialized.
+        bool m_ok;
+        
+        /// Window used for rendering.
+        SDL_Window *m_window;
 
-        /**
-         * OpenGL context.
-         */
-        static SDL_GLContext theGLContext;
+        /// OpenGL context.
+        SDL_GLContext m_GLContext;
+
+        /// Identifier for the redraw timer-generated message.
+        Uint32 m_redrawTimerEventID;
+        
+        /// Screen redraw timer.
+        SDL_TimerID m_redrawTimer;
+
+        /// Data to pass to the timer.
+        RedrawTimerCallbackUserData m_redrawTimerCallbackUserData;
         
         /// Redraw callback.
-        static void (*redrawFunc)();
+        void (*m_redrawFunc)();
 
         /// Keypress/keyrelease callback.
-        static void (*keyFunc)(const SDL_KeyboardEvent &event);
+        void (*m_keyFunc)(const SDL_KeyboardEvent &event);
         
         /// Mouse motion callback.
-        static void (*mouseMotionFunc)(const SDL_MouseMotionEvent &event);
+        void (*m_mouseMotionFunc)(const SDL_MouseMotionEvent &event);
         
     public:
         
+        App();
+        ~App();
+        
         /**
-         * Initializes the application.
-         * Returns true on success, false on failure.
-         * Failure details are reported on standard error output.
+         * Returns true if the basic app is correctly initialized.
+         * If not, the process should finish as soon as possible;
+         * it is not guaranteed that GL context or window exist.
          */
-        static bool init();
-
-        /**
-         * Finalizes the application. Should be called before terminating.
-         */
-        static void finish();
+        bool ok() const { return m_ok; }
         
         /**
          * The event loop.
          * Repeatedly processes events and calls the calbacks to handle them.
          * Returns when the application is requested to quit.
          */
-        static void eventLoop();
+        void eventLoop();
         
         /**
-         * Sets the redraw function which is responsible for redrawing the window
-         * when neeed.
-         * The redraw function is called from eventLoop().
+         * Called when the app window needs redrawing.
          */
-        static void setRedrawFunc(void (*fn)());
+        virtual void onRedraw();
         
         /**
-         * Sets the function to be called when a key press/release is detected.
+         * Called when a key is pressed.
          */
-        static void setKeyFunc(void (*fn)(const SDL_KeyboardEvent&));
-        
+        virtual void onKey(const SDL_KeyboardEvent &event);
+
         /**
-         * Sets the function to be called when a mouse motion is detected.
+         * Called when mouse motion is detected.
          */
-        static void setMouseMotionFunc(void (*fn)(const SDL_MouseMotionEvent&));
+        virtual void onMouseMotion(const SDL_MouseMotionEvent &event);
     };
 }
 
