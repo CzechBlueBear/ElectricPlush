@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 using namespace plush;
 
@@ -23,9 +24,11 @@ glm::mat4 Camera::modelMatrix() const
 
 glm::mat4 Camera::viewMatrix() const
 {
-    glm::mat4 rotMatrix = glm::rotate(glm::mat4(1.0f), m_azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 transMatrix = glm::translate(rotMatrix, -m_coord);
-    return transMatrix;
+    glm::mat4 m = glm::mat4(1.0f);
+    m = glm::rotate(m, -m_elevation, glm::vec3(1.0f, 0.0f, 0.0f));
+    m = glm::rotate(m, m_azimuth, glm::vec3(0.0f, 1.0f, 0.0f));
+    m = glm::translate(m, -m_coord);
+    return m;
 }
 
 glm::mat4 Camera::projectionMatrix() const
@@ -38,6 +41,11 @@ glm::vec3 Camera::forwardVector() const
     glm::mat4 eyeToWorldMatrix = glm::affineInverse(viewMatrix());
     glm::vec4 result = eyeToWorldMatrix * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
     return glm::vec3(result);
+}
+
+glm::vec3 Camera::walkVector() const
+{
+    return glm::vec3(glm::rotate(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f), -m_azimuth, glm::vec3(0.0f, 1.0f, 0.0f)));
 }
 
 void Camera::upload(GLuint uniform_modelMatrix, GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix)
