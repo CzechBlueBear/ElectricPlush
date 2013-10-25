@@ -30,6 +30,7 @@ const Uint32 REDRAW_TIMER_INTERVAL = 25;
 
 void (*App::redrawFunc)() = nullptr;
 void (*App::keyFunc)(const SDL_KeyboardEvent &event) = nullptr;
+void (*App::mouseMotionFunc)(const SDL_MouseMotionEvent &event) = nullptr;
 
 /**
  * Callback that is executed in the timer thread when the redraw timer fires.
@@ -144,7 +145,9 @@ void App::eventLoop()
                     return;
                     
                 case SDL_MOUSEMOTION:
-                    //EventHandler::current()->onMouseMotion(event.motion);
+                    if (mouseMotionFunc) {
+                        mouseMotionFunc(event.motion);
+                    }
                     break;
                     
                 case SDL_MOUSEBUTTONDOWN:

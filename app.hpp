@@ -19,13 +19,14 @@ namespace plush {
          */
         static SDL_GLContext theGLContext;
         
-        /**
-         * Pointer to the redraw function.
-         */
+        /// Redraw callback.
         static void (*redrawFunc)();
 
         /// Keypress/keyrelease callback.
         static void (*keyFunc)(const SDL_KeyboardEvent &event);
+        
+        /// Mouse motion callback.
+        static void (*mouseMotionFunc)(const SDL_MouseMotionEvent &event);
         
     public:
         
@@ -55,7 +56,15 @@ namespace plush {
          */
         static void setRedrawFunc(void (*fn)());
         
+        /**
+         * Sets the function to be called when a key press/release is detected.
+         */
         static void setKeyFunc(void (*fn)(const SDL_KeyboardEvent&));
+        
+        /**
+         * Sets the function to be called when a mouse motion is detected.
+         */
+        static void setMouseMotionFunc(void (*fn)(const SDL_MouseMotionEvent&));
     };
 }
 

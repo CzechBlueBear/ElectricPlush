@@ -48,21 +48,29 @@ void onKey(const SDL_KeyboardEvent &event)
     if (event.type == SDL_KEYDOWN) {
         switch (event.keysym.sym) {
             case SDLK_UP:
-                testCamera.setCoord(testCamera.getCoord() + 0.2f * testCamera.forwardVector());
+                testCamera.setCoord(testCamera.getCoord() + 0.2f * testCamera.walkVector());
                 break;
                 
             case SDLK_DOWN:
-                testCamera.setCoord(testCamera.getCoord() - 0.2f * testCamera.forwardVector());
+                testCamera.setCoord(testCamera.getCoord() - 0.2f * testCamera.walkVector());
                 break;
                 
             case SDLK_LEFT:
-                testCamera.setAzimuth(testCamera.getAzimuth() - 0.5f);
+                testCamera.setAzimuth(testCamera.getAzimuth() - 1);
                 std::cerr << "azimuth now: " << testCamera.getAzimuth() << "\n";
                 break;
                 
             case SDLK_RIGHT:
-                testCamera.setAzimuth(testCamera.getAzimuth() + 0.5f);
+                testCamera.setAzimuth(testCamera.getAzimuth() + 1);
                 std::cerr << "azimuth now: " << testCamera.getAzimuth() << "\n";
+                break;
+            
+            case SDLK_PAGEDOWN:
+                testCamera.setElevation(testCamera.getElevation() - 1);
+                break;
+            
+            case SDLK_PAGEUP:
+                testCamera.setElevation(testCamera.getElevation() + 1);
                 break;
         }
     }
