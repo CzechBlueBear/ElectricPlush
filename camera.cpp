@@ -17,10 +17,12 @@ void Camera::setCoord(const glm::vec3 &newCoord)
     m_coord = newCoord;
 }
 
+/*
 glm::mat4 Camera::modelMatrix() const
 {
     return glm::mat4(1.0f);
 }
+*/
 
 glm::mat4 Camera::viewMatrix() const
 {
@@ -53,16 +55,16 @@ glm::vec3 Camera::walkVector() const
     return glm::vec3(glm::rotate(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f), -m_azimuth, glm::vec3(0.0f, 1.0f, 0.0f)));
 }
 
-void Camera::upload(GLuint uniform_modelMatrix, GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix, GLuint uniform_normalMatrix)
+void Camera::upload(GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix)
 {
     glm::mat4 m;
     
-    m = modelMatrix();
-    glUniformMatrix4fv(uniform_modelMatrix, 1, GL_FALSE, glm::value_ptr(m));
+//    m = modelMatrix();
+//    glUniformMatrix4fv(uniform_modelMatrix, 1, GL_FALSE, glm::value_ptr(m));
     m = viewMatrix();
     glUniformMatrix4fv(uniform_viewMatrix, 1, GL_FALSE, glm::value_ptr(m));
     m = projectionMatrix();
     glUniformMatrix4fv(uniform_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m));
-    m = glm::affineInverse(viewMatrix());
-    glUniformMatrix4fv(uniform_normalMatrix, 1, GL_FALSE, glm::value_ptr(m));
+//    m = glm::affineInverse(viewMatrix());
+//    glUniformMatrix4fv(uniform_normalMatrix, 1, GL_FALSE, glm::value_ptr(m));
 }

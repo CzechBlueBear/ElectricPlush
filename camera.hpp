@@ -36,13 +36,13 @@ namespace plush {
         float getElevation() const { return m_elevation; }
         void setElevation(float elevation) { m_elevation = elevation; }
         
-        glm::mat4 modelMatrix() const;
+        //glm::mat4 modelMatrix() const;
         glm::mat4 viewMatrix() const;
         glm::mat4 projectionMatrix() const;
         
         /// Returns the eye-to-world (inverse to view) matrix.
         glm::mat4 eyeToWorldMatrix() const;
-        
+
         /**
          * Returns the forward vector: points to where the camera looks.
          */
@@ -55,9 +55,7 @@ namespace plush {
         glm::vec3 walkVector() const;
 
         /// Uploads the camera matrices to shader uniforms.
-        void upload(GLuint uniform_modelMatrix, GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix,
-                    GLuint uniform_normalMatrix
-        );
+        void upload(GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix);
     };
 }
 
