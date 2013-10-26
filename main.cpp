@@ -45,7 +45,7 @@ public:
 
 MyApp::MyApp()
 {
-    testFragShader = new FragmentShader("shaders/lighted_color.fsh");
+    testFragShader = new FragmentShader("shaders/trivial_color.fsh");
     testVertShader = new VertexShader("shaders/transform_coord_color_normal.vsh");
 
     testProgram = new ShaderProgram();
@@ -63,7 +63,7 @@ MyApp::MyApp()
     testCamera.setCoord(glm::vec3(0.0f, 0.0f, 1.5f));
     
     testCube = new Cube();
-    testCube->prepare();
+    testCube->prepare();    
 }
 
 void MyApp::onRedraw()
@@ -72,10 +72,10 @@ void MyApp::onRedraw()
 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     
-    testCamera.upload(uniform_modelMatrix, uniform_viewMatrix, uniform_projectionMatrix, uniform_normalMatrix);
+    testCamera.upload(uniform_viewMatrix, uniform_projectionMatrix);
     
-    glm::vec3 hollywoodLight = glm::vec3(testCamera.viewMatrix() * glm::vec4(-1.0f, -1.0f, -1.0f, 0.0f));
-    glUniform3fv(uniform_hollywoodLight, GL_FALSE, glm::value_ptr(hollywoodLight));
+    glm::vec3 hollywoodLight = glm::vec3(0.0f, 0.0f, 1.0f);
+    glUniform3fv(uniform_hollywoodLight, 1, glm::value_ptr(hollywoodLight));
 
     testCube->render();
     

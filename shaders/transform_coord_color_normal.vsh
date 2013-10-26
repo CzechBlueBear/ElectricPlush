@@ -11,9 +11,14 @@ uniform mat4 viewMatrix = mat4(1.0);
 uniform mat4 projectionMatrix = mat4(1.0);
 uniform mat4 normalMatrix = mat4(1.0);
 
+uniform vec3 hollywoodLight = vec3(0.0, 0.0, 0.0);
+
 void main()
 {
     gl_Position = projectionMatrix*viewMatrix*modelMatrix*vec4(vertexCoord, 1.0);
-    color = vertexColor;
     normal = vec3(normalMatrix*vec4(vertexNormal, 0.0));
+    
+    float hollywoodLightingFactor = dot(-normal, hollywoodLight);
+    
+    color = hollywoodLightingFactor*vertexColor;
 }
