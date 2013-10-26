@@ -1,4 +1,7 @@
 #include "cube.hpp"
+#include "vertex_format.hpp"
+
+#include <cstddef>
 
 using namespace plush;
 
@@ -11,25 +14,50 @@ const glm::vec3 RIGHT_BOTTOM_BACK ( .5f, -.5f, -.5f);
 const glm::vec3 RIGHT_TOP_BACK    ( .5f,  .5f, -.5f);
 const glm::vec3 LEFT_TOP_BACK     (-.5f,  .5f, -.5f);
 
-static const glm::vec3 cubeCoords[] = {
-  
+const glm::vec3 NORMAL_LEFT     (-1.0f,  0.0f,  0.0f);
+const glm::vec3 NORMAL_RIGHT    ( 1.0f,  0.0f,  0.0f);
+const glm::vec3 NORMAL_UP       ( 0.0f,  1.0f,  0.0f);
+const glm::vec3 NORMAL_DOWN     ( 0.0f, -1.0f,  0.0f);
+const glm::vec3 NORMAL_FRONT    ( 0.0f,  0.0f,  1.0f);
+const glm::vec3 NORMAL_BACK     ( 0.0f,  0.0f, -1.0f);
+
+static const TexturedVertex cubeVertices[] = {
+    
     // front side
-    LEFT_BOTTOM_FRONT, RIGHT_BOTTOM_FRONT, RIGHT_TOP_FRONT, LEFT_TOP_FRONT,
+    { LEFT_BOTTOM_FRONT,  NORMAL_FRONT, glm::vec2(0.0f, 0.0f), },
+    { RIGHT_BOTTOM_FRONT, NORMAL_FRONT, glm::vec2(0.0f, 1.0f), },
+    { RIGHT_TOP_FRONT,    NORMAL_FRONT, glm::vec2(1.0f, 1.0f), },
+    { LEFT_TOP_FRONT,     NORMAL_FRONT, glm::vec2(1.0f, 1.0f), },
     
     // back side
-    LEFT_BOTTOM_BACK, RIGHT_BOTTOM_BACK, RIGHT_TOP_BACK, LEFT_TOP_BACK,
-    
+    { LEFT_BOTTOM_BACK,   NORMAL_BACK,  glm::vec2(0.0f, 0.0f), },
+    { RIGHT_BOTTOM_BACK,  NORMAL_BACK,  glm::vec2(0.0f, 0.0f), },
+    { RIGHT_TOP_BACK,     NORMAL_BACK,  glm::vec2(0.0f, 0.0f), },
+    { LEFT_TOP_BACK,      NORMAL_BACK,  glm::vec2(0.0f, 0.0f), },
+
     // left side
-    LEFT_BOTTOM_FRONT, LEFT_BOTTOM_BACK, LEFT_TOP_BACK, LEFT_TOP_FRONT,
+    { LEFT_BOTTOM_FRONT,  NORMAL_LEFT, },
+    { LEFT_BOTTOM_BACK,   NORMAL_LEFT, },
+    { LEFT_TOP_BACK,      NORMAL_LEFT, },
+    { LEFT_TOP_FRONT,     NORMAL_LEFT, },
     
     // right side
-    RIGHT_BOTTOM_FRONT, RIGHT_BOTTOM_BACK, RIGHT_TOP_BACK, RIGHT_TOP_FRONT,
+    { RIGHT_BOTTOM_FRONT, NORMAL_RIGHT, },
+    { RIGHT_BOTTOM_BACK,  NORMAL_RIGHT, },
+    { RIGHT_TOP_BACK,     NORMAL_RIGHT, },
+    { RIGHT_TOP_FRONT,    NORMAL_RIGHT, },
     
     // bottom side
-    LEFT_BOTTOM_FRONT, RIGHT_BOTTOM_FRONT, RIGHT_BOTTOM_BACK, LEFT_BOTTOM_BACK,
+    { LEFT_BOTTOM_FRONT,  NORMAL_DOWN, },
+    { RIGHT_BOTTOM_FRONT, NORMAL_DOWN, },
+    { RIGHT_BOTTOM_BACK,  NORMAL_DOWN, },
+    { LEFT_BOTTOM_BACK,   NORMAL_DOWN, },
     
     // top side
-    LEFT_TOP_FRONT, RIGHT_TOP_FRONT, RIGHT_TOP_BACK, LEFT_TOP_BACK,
+    { LEFT_TOP_FRONT,     NORMAL_UP, },
+    { RIGHT_TOP_FRONT,    NORMAL_UP, },
+    { RIGHT_TOP_BACK,     NORMAL_UP, },
+    { LEFT_TOP_BACK,      NORMAL_UP, },
 };
 
 static const short cubeIndices[] = {
@@ -52,8 +80,8 @@ CubeModel::CubeModel()
 {
     VAOBinder vaoBinder(vao);
 
-    coordsVBO.data(sizeof(cubeCoords), cubeCoords);
-    VAO::vertexAttribPointer("vertexCoord", coordsVBO, 3, GL_FLOAT, false, 0, 0);
+    coordsVBO.data(sizeof(cubeVertices), cubeVertices);
+    VAO::vertexAttribPointer("vertexCoord", coordsVBO, 3, GL_FLOAT, false, sizeof(TexturedVertex), offsetof(TexturedVertex, coord));
     VAO::enableVertexAttribArray("vertexCoord");
 
     indicesVBO.data(sizeof(cubeIndices), cubeIndices);
