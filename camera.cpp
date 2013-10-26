@@ -36,6 +36,11 @@ glm::mat4 Camera::projectionMatrix() const
     return glm::perspective(45.0f, 1.33f, 1.0f, 10.0f);
 }
 
+glm::mat4 Camera::eyeToWorldMatrix() const
+{
+    return glm::affineInverse(viewMatrix());
+}
+
 glm::vec3 Camera::forwardVector() const
 {
     glm::mat4 eyeToWorldMatrix = glm::affineInverse(viewMatrix());
@@ -48,7 +53,7 @@ glm::vec3 Camera::walkVector() const
     return glm::vec3(glm::rotate(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f), -m_azimuth, glm::vec3(0.0f, 1.0f, 0.0f)));
 }
 
-void Camera::upload(GLuint uniform_modelMatrix, GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix)
+void Camera::upload(GLuint uniform_modelMatrix, GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix, GLuint uniform_normalMatrix)
 {
     glm::mat4 m;
     
@@ -58,4 +63,6 @@ void Camera::upload(GLuint uniform_modelMatrix, GLuint uniform_viewMatrix, GLuin
     glUniformMatrix4fv(uniform_viewMatrix, 1, GL_FALSE, glm::value_ptr(m));
     m = projectionMatrix();
     glUniformMatrix4fv(uniform_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m));
+    m = glm::affineInverse(viewMatrix());
+    glUniformMatrix4fv(uniform_normalMatrix, 1, GL_FALSE, glm::value_ptr(m));
 }
