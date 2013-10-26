@@ -17,12 +17,15 @@ void Camera::setCoord(const glm::vec3 &newCoord)
     m_coord = newCoord;
 }
 
-/*
-glm::mat4 Camera::modelMatrix() const
+void Camera::setAzimuth(float azimuth)
 {
-    return glm::mat4(1.0f);
+    m_azimuth = remainder(azimuth, 360.0f);
 }
-*/
+
+void Camera::setElevation(float elevation)
+{
+    m_elevation = remainder(elevation, 360.0f);
+}
 
 glm::mat4 Camera::viewMatrix() const
 {
@@ -59,12 +62,8 @@ void Camera::upload(GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix)
 {
     glm::mat4 m;
     
-//    m = modelMatrix();
-//    glUniformMatrix4fv(uniform_modelMatrix, 1, GL_FALSE, glm::value_ptr(m));
     m = viewMatrix();
     glUniformMatrix4fv(uniform_viewMatrix, 1, GL_FALSE, glm::value_ptr(m));
     m = projectionMatrix();
     glUniformMatrix4fv(uniform_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m));
-//    m = glm::affineInverse(viewMatrix());
-//    glUniformMatrix4fv(uniform_normalMatrix, 1, GL_FALSE, glm::value_ptr(m));
 }

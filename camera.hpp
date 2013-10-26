@@ -32,11 +32,18 @@ namespace plush {
         const glm::vec3 &getCoord() const { return m_coord; }
         void setCoord(const glm::vec3 &newCoord);
         float getAzimuth() const { return m_azimuth; }
-        void setAzimuth(float azimuth) { m_azimuth = azimuth; }
-        float getElevation() const { return m_elevation; }
-        void setElevation(float elevation) { m_elevation = elevation; }
         
-        //glm::mat4 modelMatrix() const;
+        /**
+         * Sets the azimuth (value is clamped to <-180, 180)).
+         */
+        void setAzimuth(float azimuth);
+        float getElevation() const { return m_elevation; }
+        
+        /**
+         * Sets the elevation (value clamped to <-180, 180)).
+         */
+        void setElevation(float elevation);
+        
         glm::mat4 viewMatrix() const;
         glm::mat4 projectionMatrix() const;
         
@@ -56,6 +63,8 @@ namespace plush {
 
         /// Uploads the camera matrices to shader uniforms.
         void upload(GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix);
+        
+
     };
 }
 
