@@ -81,8 +81,11 @@ CubeModel::CubeModel()
     VAOBinder vaoBinder(vao);
 
     coordsVBO.data(sizeof(cubeVertices), cubeVertices);
+    
     VAO::vertexAttribPointer("vertexCoord", coordsVBO, 3, GL_FLOAT, false, sizeof(TexturedVertex), offsetof(TexturedVertex, coord));
     VAO::enableVertexAttribArray("vertexCoord");
+    VAO::vertexAttribPointer("vertexNormal", coordsVBO, 3, GL_FLOAT, false, sizeof(TexturedVertex), offsetof(TexturedVertex, normal));
+    VAO::enableVertexAttribArray("vertexNormal");
 
     indicesVBO.data(sizeof(cubeIndices), cubeIndices);
 }

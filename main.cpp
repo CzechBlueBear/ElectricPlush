@@ -15,6 +15,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace plush;
 
@@ -73,6 +74,9 @@ void MyApp::onRedraw()
     
     testCamera.upload(uniform_modelMatrix, uniform_viewMatrix, uniform_projectionMatrix, uniform_normalMatrix);
     
+    glm::vec3 hollywoodLight = glm::vec3(testCamera.viewMatrix() * glm::vec4(-1.0f, -1.0f, -1.0f, 0.0f));
+    glUniform3fv(uniform_hollywoodLight, GL_FALSE, glm::value_ptr(hollywoodLight));
+
     testCube->render();
     
     GLError::check("redrawDemo()");
