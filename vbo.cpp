@@ -1,3 +1,4 @@
+#include "complain.hpp"
 #include "vbo.hpp"
 #include "gl_error.hpp"
 #include "shader_program.hpp"
@@ -12,8 +13,7 @@ VBO::VBO(GLenum target, GLenum usage)
     : m_id(0), m_target(target), m_usage(usage)
 {   
     glGenBuffers(1, &m_id);
-    if (m_id == 0)
-        throw GLError("VBO::VBO(): could not allocate a VBO handle");
+    ON_GL_ERROR_COMPLAIN();
 }
 
 VBO::~VBO()
@@ -24,14 +24,14 @@ VBO::~VBO()
 void VBO::bind()
 {
     glBindBuffer(m_target, m_id);
-    GLError::check("VBO::bind()");
+    ON_GL_ERROR_COMPLAIN();
 }
 
 void VBO::data(size_t byteSize, const void* src)
 {
     bind();
     glBufferData(m_target, byteSize, src, m_usage);
-    GLError::check("VBO::data()");
+    ON_GL_ERROR_COMPLAIN();
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -63,9 +63,12 @@ namespace plush {
          */
         void attach(Shader &sh);
         
-        /// Links the program.
-        /// Throws a GLError if the link fails.
-        void link();
+        /**
+         * Links the program.
+         * Returns true on success, false on failure. Errors or warnings
+         * from the compilation are printed on standard error output.
+         */
+        bool link();
         
         /// Makes the program current in the current GL context.
         void use();
