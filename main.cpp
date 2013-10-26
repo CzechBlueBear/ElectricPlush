@@ -28,6 +28,8 @@ protected:
     GLuint uniform_modelMatrix;
     GLuint uniform_viewMatrix;
     GLuint uniform_projectionMatrix;
+    GLuint uniform_normalMatrix;
+    GLuint uniform_hollywoodLight;
 
     Camera testCamera;
 
@@ -42,8 +44,8 @@ public:
 
 MyApp::MyApp()
 {
-    testFragShader = new FragmentShader("shaders/trivial_color.fsh");
-    testVertShader = new VertexShader("shaders/transform_coord_color.vsh");
+    testFragShader = new FragmentShader("shaders/lighted_color.fsh");
+    testVertShader = new VertexShader("shaders/transform_coord_color_normal.vsh");
 
     testProgram = new ShaderProgram();
     testProgram->attach(*testFragShader);
@@ -54,6 +56,8 @@ MyApp::MyApp()
     uniform_modelMatrix = testProgram->getUniformLocation("modelMatrix");
     uniform_projectionMatrix = testProgram->getUniformLocation("projectionMatrix");
     uniform_viewMatrix = testProgram->getUniformLocation("viewMatrix");
+    uniform_normalMatrix = testProgram->getUniformLocation("normalMatrix");
+    uniform_hollywoodLight = testProgram->getUniformLocation("hollywoodLight");
 
     testCamera.setCoord(glm::vec3(0.0f, 0.0f, 1.5f));
     
@@ -67,7 +71,7 @@ void MyApp::onRedraw()
 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     
-    testCamera.upload(uniform_modelMatrix, uniform_viewMatrix, uniform_projectionMatrix);
+    testCamera.upload(uniform_modelMatrix, uniform_viewMatrix, uniform_projectionMatrix, uniform_normalMatrix);
     
     testCube->render();
     
