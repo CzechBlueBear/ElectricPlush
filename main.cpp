@@ -12,6 +12,7 @@
 #include "cube.hpp"
 
 #include <array>
+#include <cmath>
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -22,9 +23,9 @@ using namespace plush;
 class MyApp : public App {
 protected:
     
-    FragmentShader *testFragShader;
-    VertexShader *testVertShader;
-    ShaderProgram *testProgram;
+    FragmentShader testFragShader;
+    VertexShader testVertShader;
+    ShaderProgram testProgram;
 
     GLuint uniform_modelMatrix;
     GLuint uniform_viewMatrix;
@@ -34,7 +35,7 @@ protected:
 
     Camera testCamera;
 
-    Cube *testCube;
+    Cube testCube;
 
 public:
     
@@ -44,31 +45,33 @@ public:
 };
 
 MyApp::MyApp()
+    : testFragShader("shaders/trivial_color.fsh"),
+    testVertShader("shaders/transform_coord_color_normal.vsh")
 {
-    testFragShader = new FragmentShader("shaders/trivial_color.fsh");
-    testVertShader = new VertexShader("shaders/transform_coord_color_normal.vsh");
+    testProgram.attach(testFragShader);
+    testProgram.attach(testVertShader);
+    testProgram.link();
+    testProgram.use();
 
-    testProgram = new ShaderProgram();
-    testProgram->attach(*testFragShader);
-    testProgram->attach(*testVertShader);
-    testProgram->link();
-    testProgram->use();
-
-    uniform_modelMatrix = testProgram->getUniformLocation("modelMatrix");
-    uniform_projectionMatrix = testProgram->getUniformLocation("projectionMatrix");
-    uniform_viewMatrix = testProgram->getUniformLocation("viewMatrix");
-    uniform_normalMatrix = testProgram->getUniformLocation("normalMatrix");
-    uniform_hollywoodLight = testProgram->getUniformLocation("hollywoodLight");
+    uniform_modelMatrix = testProgram.getUniformLocation("modelMatrix");
+    uniform_projectionMatrix = testProgram.getUniformLocation("projectionMatrix");
+    uniform_viewMatrix = testProgram.getUniformLocation("viewMatrix");
+    uniform_normalMatrix = testProgram.getUniformLocation("normalMatrix");
+    uniform_hollywoodLight = testProgram.getUniformLocation("hollywoodLight");
 
     testCamera.setCoord(glm::vec3(0.0f, 0.0f, 1.5f));
-    
-    testCube = new Cube();
-    testCube->prepare();    
 }
 
 void MyApp::onRedraw()
 {
-    glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
+    float northLightFactor = cos(testCamera.getAzimuth()/180.0f*M_PI);
+    glm::vec3 horizonColor = glm::vec3(0.2 + 0.3*northLightFactor,
+                                       0.2 + 0.3*northLightFactor,
+                                       0.4 + 0.4*northLightFactor);
+    if (horizonColor[2] < 0.1f)
+            horizonColor[2] = 0.1f;
+
+    glClearColor(horizonColor[0], horizonColor[1], horizonColor[2], 1.0f);
 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     
@@ -77,7 +80,7 @@ void MyApp::onRedraw()
     glm::vec3 hollywoodLight = glm::vec3(0.0f, 0.0f, 1.0f);
     glUniform3fv(uniform_hollywoodLight, 1, glm::value_ptr(hollywoodLight));
 
-    testCube->render();
+    testCube.render();
     
     GLError::check("redrawDemo()");
 }
@@ -95,12 +98,12 @@ void MyApp::onKey(const SDL_KeyboardEvent &event)
                 break;
                 
             case SDLK_LEFT:
-                testCamera.setAzimuth(testCamera.getAzimuth() - 1);
+                testCamera.setAzimuth(testCamera.getAzimuth() - 4);
                 std::cerr << "azimuth now: " << testCamera.getAzimuth() << "\n";
                 break;
                 
             case SDLK_RIGHT:
-                testCamera.setAzimuth(testCamera.getAzimuth() + 1);
+                testCamera.setAzimuth(testCamera.getAzimuth() + 4);
                 std::cerr << "azimuth now: " << testCamera.getAzimuth() << "\n";
                 break;
             
