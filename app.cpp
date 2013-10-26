@@ -79,6 +79,9 @@ App::App()
     }
 
     SDL_GL_MakeCurrent(m_window, m_GLContext);
+
+    // init crucial GL settings to sane values (some are not much sane by default)
+    glEnable(GL_DEPTH_TEST);
     
     err = glewInit();
     if (err != GLEW_OK) {
