@@ -5,11 +5,14 @@
 
 namespace plush {
     
-    /// A vertex structure that has only two elements: a position in 3d,
-    /// and a color.
-    struct Vertex_pos_color {
-        glm::vec3 pos;
-        glm::vec3 color;
+    /**
+     * A vertex description to be used with simple texturing.
+     * It contains a coordinate, a normal, and a texture coordinate.
+     */
+    struct TexturedVertex {
+        glm::vec3 coord;
+        glm::vec3 normal;
+        glm::vec2 texCoord;
     };
 }
 
