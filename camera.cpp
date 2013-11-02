@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include "uniform.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -58,12 +59,14 @@ glm::vec3 Camera::walkVector() const
     return glm::vec3(glm::rotate(glm::vec4(0.0f, 0.0f, -1.0f, 0.0f), -m_azimuth, glm::vec3(0.0f, 1.0f, 0.0f)));
 }
 
-void Camera::upload(GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix)
+void Camera::upload(UniformMat4 &uniform_viewMatrix, UniformMat4 &uniform_projectionMatrix)
 {
     glm::mat4 m;
     
     m = viewMatrix();
-    glUniformMatrix4fv(uniform_viewMatrix, 1, GL_FALSE, glm::value_ptr(m));
+    uniform_viewMatrix.set(m);
+    //glUniformMatrix4fv(uniform_viewMatrix, 1, GL_FALSE, glm::value_ptr(m));
     m = projectionMatrix();
-    glUniformMatrix4fv(uniform_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m));
+    uniform_projectionMatrix.set(m);
+    //glUniformMatrix4fv(uniform_projectionMatrix, 1, GL_FALSE, glm::value_ptr(m));
 }

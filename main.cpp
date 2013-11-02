@@ -10,6 +10,7 @@
 #include "vertex_format.hpp"
 #include "camera.hpp"
 #include "cube.hpp"
+#include "uniform.hpp"
 
 #include <array>
 #include <cmath>
@@ -27,11 +28,11 @@ protected:
     VertexShader testVertShader;
     ShaderProgram testProgram;
 
-    GLuint uniform_modelMatrix;
-    GLuint uniform_viewMatrix;
-    GLuint uniform_projectionMatrix;
-    GLuint uniform_normalMatrix;
-    GLuint uniform_hollywoodLight;
+    UniformMat4 uniform_modelMatrix;
+    UniformMat4 uniform_viewMatrix;
+    UniformMat4 uniform_projectionMatrix;
+    UniformVec3 uniform_normalMatrix;
+    UniformVec3 uniform_hollywoodLight;
 
     Camera testCamera;
 
@@ -46,18 +47,23 @@ public:
 
 MyApp::MyApp()
     : testFragShader("shaders/trivial_color.fsh"),
-    testVertShader("shaders/transform_coord_color_normal.vsh")
+    testVertShader("shaders/transform_coord_color_normal.vsh"),
+    uniform_modelMatrix("modelMatrix"),
+    uniform_viewMatrix("viewMatrix"),
+    uniform_projectionMatrix("projectionMatrix"),
+    uniform_normalMatrix("normalMatrix"),
+    uniform_hollywoodLight("hollywoodLight")
 {
     testProgram.attach(testFragShader);
     testProgram.attach(testVertShader);
     testProgram.link();
     testProgram.use();
 
-    uniform_modelMatrix = testProgram.getUniformLocation("modelMatrix");
-    uniform_projectionMatrix = testProgram.getUniformLocation("projectionMatrix");
-    uniform_viewMatrix = testProgram.getUniformLocation("viewMatrix");
-    uniform_normalMatrix = testProgram.getUniformLocation("normalMatrix");
-    uniform_hollywoodLight = testProgram.getUniformLocation("hollywoodLight");
+    uniform_modelMatrix.find();
+    uniform_projectionMatrix.find();
+    uniform_viewMatrix.find();
+    uniform_normalMatrix.find();
+    uniform_hollywoodLight.find();
 
     testCamera.setCoord(glm::vec3(0.0f, 0.0f, 1.5f));
 }
@@ -65,9 +71,9 @@ MyApp::MyApp()
 void MyApp::onRedraw()
 {
     float northLightFactor = cos(testCamera.getAzimuth()/180.0f*M_PI);
-    glm::vec3 horizonColor = glm::vec3(0.2 + 0.3*northLightFactor,
-                                       0.2 + 0.3*northLightFactor,
-                                       0.4 + 0.4*northLightFactor);
+    glm::vec3 horizonColor = glm::vec3(0.2 + 0.1*northLightFactor,
+                                       0.2 + 0.1*northLightFactor,
+                                       0.4 + 0.1*northLightFactor);
     if (horizonColor[2] < 0.1f)
             horizonColor[2] = 0.1f;
 
@@ -76,9 +82,8 @@ void MyApp::onRedraw()
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     
     testCamera.upload(uniform_viewMatrix, uniform_projectionMatrix);
-    
-    glm::vec3 hollywoodLight = glm::vec3(0.0f, 0.0f, 1.0f);
-    glUniform3fv(uniform_hollywoodLight, 1, glm::value_ptr(hollywoodLight));
+  
+    uniform_hollywoodLight.set(glm::vec3(0.0f, 0.0f, 1.0f));
 
     testCube.render();
     

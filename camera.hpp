@@ -6,6 +6,11 @@
 
 namespace plush {
     
+    class UniformMat4;
+    
+    /**
+     * Describes the position, orientation and other properties of a camera.
+     */
     class Camera {
     protected:
         
@@ -33,15 +38,11 @@ namespace plush {
         void setCoord(const glm::vec3 &newCoord);
         float getAzimuth() const { return m_azimuth; }
         
-        /**
-         * Sets the azimuth (value is clamped to <-180, 180)).
-         */
+        /// Sets the azimuth (value is clamped to <-180, 180)).
         void setAzimuth(float azimuth);
         float getElevation() const { return m_elevation; }
         
-        /**
-         * Sets the elevation (value clamped to <-180, 180)).
-         */
+        /// Sets the elevation (value clamped to <-180, 180)).
         void setElevation(float elevation);
         
         glm::mat4 viewMatrix() const;
@@ -50,9 +51,7 @@ namespace plush {
         /// Returns the eye-to-world (inverse to view) matrix.
         glm::mat4 eyeToWorldMatrix() const;
 
-        /**
-         * Returns the forward vector: points to where the camera looks.
-         */
+        /// Returns the forward vector: points to where the camera looks.
         glm::vec3 forwardVector() const;
         
         /**
@@ -62,9 +61,7 @@ namespace plush {
         glm::vec3 walkVector() const;
 
         /// Uploads the camera matrices to shader uniforms.
-        void upload(GLuint uniform_viewMatrix, GLuint uniform_projectionMatrix);
-        
-
+        void upload(UniformMat4 &uniform_viewMatrix, UniformMat4 &uniform_projectionMatrix);
     };
 }
 
