@@ -46,7 +46,6 @@ GLint ShaderProgramProxy::getUniformLocation(const std::string &name)
 /////////////////////////////////////////////////////////////////////////////
 
 ShaderProgram::ShaderProgram()
-    : m_id(0)
 {
     m_id = glCreateProgram();
     ON_GL_ERROR_COMPLAIN();
@@ -101,7 +100,7 @@ bool ShaderProgram::link()
 
 void ShaderProgram::use()
 {
-    proxy().use();
+    ShaderProgramProxy(*this).use();
 }
 
 void ShaderProgram::useNull()
@@ -111,12 +110,12 @@ void ShaderProgram::useNull()
 
 GLint ShaderProgram::getAttribLocation(const std::string &name)
 {
-    return proxy().getAttribLocation(name);
+    return ShaderProgramProxy(*this).getAttribLocation(name);
 }
 
 GLint ShaderProgram::getUniformLocation(const std::string &name)
 {
-    return proxy().getUniformLocation(name);
+    return ShaderProgramProxy(*this).getUniformLocation(name);
 }
 
 ShaderProgramProxy ShaderProgram::current()
@@ -124,9 +123,4 @@ ShaderProgramProxy ShaderProgram::current()
     GLint id;
     glGetIntegerv(GL_CURRENT_PROGRAM, &id);
     return ShaderProgramProxy(id);
-}
-
-ShaderProgramProxy ShaderProgram::proxy()
-{
-    return ShaderProgramProxy(m_id);
 }

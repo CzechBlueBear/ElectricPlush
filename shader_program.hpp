@@ -1,55 +1,20 @@
 #ifndef SHADER_PROGRAM_HPP
 #define SHADER_PROGRAM_HPP
 
-#include "gl.hpp"
+#include "gl_object.hpp"
 #include "shader.hpp"
 
 namespace plush {
 
-    /// A copyable, pass-by-value-able reference to an OpenGL shader program.
-    class ShaderProgramProxy {
-    protected:
-        
-        /// The OpenGL identifier of the program.
-        GLuint m_id;
-    
-        /// Constructor (the OpenGL identifier is passed as an argument).
-        ShaderProgramProxy(GLuint id) : m_id(id) { };
-    
-        friend class ShaderProgram;
-        
-    public:
-        
-        ShaderProgramProxy(const ShaderProgramProxy &src) = default;
-        ShaderProgramProxy &operator=(const ShaderProgramProxy &src) = default;
-        ~ShaderProgramProxy() = default;
+    class ShaderProgramProxy;
 
-        /// Returns true for a null proxy (which does not refer to any program).
-        bool isNull() { return (m_id == 0); }
-        
-        /// Equivalent to ShaderProgram::use().
-        void use();
-        
-        /// Equivalent to ShaderProgram::getAttribLocation().
-        GLint getAttribLocation(const std::string &name);
-
-        /// Equivalent to ShaderProgram::getUniformLocation().
-        GLint getUniformLocation(const std::string &name);
-    };
-    
     /**
      * An OpenGL shader program.
      */
-    class ShaderProgram  {
-    protected:
-        
-        GLuint m_id;
-        
+    class ShaderProgram : public GLObject {
     public:
         
         ShaderProgram();
-        ShaderProgram(const ShaderProgram &prog) = delete;
-        ShaderProgram &operator=(const ShaderProgram &prog) = delete;
         ~ShaderProgram();
 
         /**
@@ -94,7 +59,29 @@ namespace plush {
         /// Returns a proxy representing this program.
         ShaderProgramProxy proxy();
     };
-    
+
+    /// A copyable, pass-by-value-able reference to an OpenGL shader program.
+    class ShaderProgramProxy : public GLObjectProxy<ShaderProgram> {
+    protected:
+        
+        friend ShaderProgram;
+        
+        ShaderProgramProxy(GLuint id) : GLObjectProxy<ShaderProgram>(id) { };
+        
+    public:
+
+        ShaderProgramProxy(ShaderProgram &src) : GLObjectProxy<ShaderProgram>(src) { };
+        
+        /// Equivalent to ShaderProgram::use().
+        void use();
+        
+        /// Equivalent to ShaderProgram::getAttribLocation().
+        GLint getAttribLocation(const std::string &name);
+
+        /// Equivalent to ShaderProgram::getUniformLocation().
+        GLint getUniformLocation(const std::string &name);
+    };
+        
 }
 
 #endif

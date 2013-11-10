@@ -1,7 +1,7 @@
 #ifndef SHADER_HPP
 #define SHADER_HPP
 
-#include "gl.hpp"
+#include "gl_object.hpp"
 
 #include <string>
 
@@ -10,10 +10,8 @@ namespace plush {
     /**
      * An OpenGL shader.
      */
-    class Shader {
+    class Shader : public GLObject {
     protected:
-        
-        GLuint m_id;
         
         friend class ShaderProgram;
 
@@ -21,9 +19,6 @@ namespace plush {
         Shader(GLenum shaderType, const std::string &filename);
     
     public:
-        
-        Shader(const Shader &src) = delete;
-        Shader &operator=(const Shader &src) = delete;
 
         ~Shader();
 

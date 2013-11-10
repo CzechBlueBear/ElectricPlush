@@ -10,7 +10,7 @@
 using namespace plush;
 
 VBO::VBO(GLenum target, GLenum usage)
-    : m_id(0), m_target(target), m_usage(usage)
+    : m_target(target), m_usage(usage)
 {   
     glGenBuffers(1, &m_id);
     ON_GL_ERROR_COMPLAIN();
@@ -24,6 +24,12 @@ VBO::~VBO()
 void VBO::bind()
 {
     glBindBuffer(m_target, m_id);
+    ON_GL_ERROR_COMPLAIN();
+}
+
+void VBO::unbind()
+{
+    glBindBuffer(m_target, 0);
     ON_GL_ERROR_COMPLAIN();
 }
 

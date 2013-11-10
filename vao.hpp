@@ -1,7 +1,8 @@
 #ifndef VAO_HPP
 #define VAO_HPP
 
-#include "gl.hpp"
+#include "gl_object.hpp"
+#include "bindable.hpp"
 
 #include <string>
 
@@ -11,24 +12,19 @@ namespace plush {
     
     /**
      * An OpenGL Vertex Array Object.
+     * 
+     * The VAO, when bound, records all changes to attribute arrays
+     * (how they are linked to appropriate vertex attributes)
+     * and resets them to the recorded state when bound again.
      */
-    class VAO {
-    protected:
-        
-        GLuint m_id;
-        
+    class VAO : public GLObject, public GLBindable {
     public:
         
         VAO();
         ~VAO();
-        VAO(const VAO &src) = delete;
-        VAO &operator=(const VAO &src) = delete;
         
-        /// Binds the VAO (unbinding any previous one).
-        void bind();
-        
-        /// Unbinds the currently bound VAO without binding any other.
-        static void bindNull();
+        void bind() override;
+        void unbind() override;
 
         /**
          * Enables feeding the attribute from an attribute array.
@@ -64,23 +60,6 @@ namespace plush {
                                         unsigned int valueCount, GLenum valueType,
                                         bool normalize=false,
                                         int stride=0, int offset=0);
-    };
-    
-    /**
-     * A guard object that binds the VAO when constructed,
-     * and unbinds it when destructed.
-     */
-    class VAOBinder {
-    protected:
-        
-        VAO &m_vao;
-        
-    public:
-        
-        VAOBinder(VAO &vao);
-        ~VAOBinder();
-        VAOBinder(const VAOBinder &src) = delete;
-        VAOBinder &operator=(const VAOBinder &src) = delete;
     };
 }
 

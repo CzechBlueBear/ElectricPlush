@@ -78,7 +78,7 @@ CubeModel *CubeModel::s_instance = nullptr;
 CubeModel::CubeModel()
     : coordsVBO(GL_STATIC_DRAW), indicesVBO(GL_STATIC_DRAW)
 {
-    VAOBinder vaoBinder(vao);
+    GLBinder<VAO> vaoBinder(vao);
 
     coordsVBO.data(sizeof(cubeVertices), cubeVertices);
     

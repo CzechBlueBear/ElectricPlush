@@ -1,7 +1,8 @@
 #ifndef VBO_HPP
 #define VBO_HPP
 
-#include "gl.hpp"
+#include "gl_object.hpp"
+#include "bindable.hpp"
 
 #include <string>
 
@@ -10,10 +11,9 @@ namespace plush {
     /**
      * A Vertex Buffer Object (holds data in OpenGL memory).
      */
-    class VBO {
+    class VBO : public GLObject, public GLBindable {
     protected:
         
-        GLuint m_id;
         GLenum m_target;
         GLenum m_usage;
         
@@ -27,11 +27,9 @@ namespace plush {
          */
         VBO(GLenum target, GLenum usage);
         ~VBO();
-        VBO(const VBO &src) = delete;
-        VBO &operator =(const VBO &src) = delete;
         
-        /// Binds the buffer object to its target.
         void bind();
+        void unbind();
         
         /**
          * Binds the buffer object to its target, resizes it as requested,

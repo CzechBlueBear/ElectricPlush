@@ -11,7 +11,7 @@
 
 using namespace plush;
 
-Shader::Shader(GLenum shaderType) : m_id(0)
+Shader::Shader(GLenum shaderType)
 {
     m_id = glCreateShader(shaderType);
     GLError::check("Shader::Shader()");
@@ -25,7 +25,6 @@ Shader::Shader(GLenum shaderType, const std::string &filename) : Shader(shaderTy
 Shader::~Shader()
 {
     glDeleteShader(m_id);
-    m_id = 0;
 }
 
 void Shader::loadFromString(const std::string &text)

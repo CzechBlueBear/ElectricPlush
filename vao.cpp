@@ -8,7 +8,7 @@
 
 using namespace plush;
 
-VAO::VAO() : m_id(0)
+VAO::VAO()
 {
     glGenVertexArrays(1, &m_id);
     ON_GL_ERROR_COMPLAIN();
@@ -24,7 +24,7 @@ void VAO::bind()
     glBindVertexArray(m_id);
 }
 
-void VAO::bindNull()
+void VAO::unbind()
 {
     glBindVertexArray(0);
 }
@@ -58,20 +58,4 @@ void VAO::vertexAttribPointer(const std::string &attribName,
     glVertexAttribPointer(attrib, valueCount, valueType, normalize, stride,
                           reinterpret_cast<GLvoid*>(offset));
     ON_GL_ERROR_COMPLAIN();
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-// VAOBinder
-/////////////////////////////////////////////////////////////////////////////
-
-VAOBinder::VAOBinder(VAO& vao)
-    : m_vao(vao)
-{
-    m_vao.bind();
-}
-
-VAOBinder::~VAOBinder()
-{
-    VAO::bindNull();
 }
