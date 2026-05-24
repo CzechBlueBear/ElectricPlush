@@ -22,7 +22,7 @@ use crate::{
 // (counterclockwise) order for a viewer looking directly at the cube's side
 // from the outside.
 //
-// Texture coordinates are specified so that, for a viewer looking at
+// Texture coordinates for the cube are generated so that, for a viewer looking at
 // the given side, the [0, 0] point of the texture (the topleft point)
 // appears to be in the top left corner of the cube's side.
 
@@ -76,4 +76,16 @@ pub fn cube() -> (Vec<Vertex>, Vec<u16>) {
     ];
 
     (vertex_data.to_vec(), index_data.to_vec())
+}
+
+pub fn cube_shifted(shift: glam::Vec3) -> (Vec<Vertex>, Vec<u16>) {
+    let (vertices, indices) = cube();
+    let shifted_vertices = vertices.into_iter().map(|v| {
+        Vertex {
+            pos: [ v.pos[0] + shift.x, v.pos[1] + shift.y, v.pos[2] + shift.z, 1.0 ],
+            normal: v.normal,
+            tex_coord: v.tex_coord
+        }
+    }).collect();
+    (shifted_vertices, indices)
 }

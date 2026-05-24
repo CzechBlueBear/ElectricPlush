@@ -1,16 +1,17 @@
-use wgpu::BufferAddress;
-use std::num::NonZero;
+use bytemuck::{ Pod, Zeroable };
 use wgpu::{
-    BufferDescriptor, BufferUsages
+    BufferAddress, BufferDescriptor, BufferUsages
 };
 use std::{
-    sync::Arc
+    sync::Arc,
+    num::NonZero
 };
 use crate::{
     cube::cube, vertex::Vertex, camera::Camera, camera::CameraUniform
 };
 use wgpu::{util::DeviceExt};
 
+/// A single item of a rendering job.
 pub struct RenderTask {
     vertex_buf: wgpu::Buffer,
     index_buf: wgpu::Buffer,
@@ -18,7 +19,6 @@ pub struct RenderTask {
     bind_group: wgpu::BindGroup,
     uniform_buf: wgpu::Buffer,
     pipeline: wgpu::RenderPipeline,
-//    pipeline_wire: Option<wgpu::RenderPipeline>,
 }
 
 impl RenderTask {
@@ -67,8 +67,6 @@ impl RenderTask {
             texture_extent,
         );
 
-        //let aspect = surface_config.width as f32 / surface_config.height as f32;
-
         // Create the uniform buffer to hold the camera matrices
         let uniform_buf = device.create_buffer(&BufferDescriptor {
             label: Some("Camera Uniform Buffer"),
@@ -76,16 +74,6 @@ impl RenderTask {
             usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
-
-        // Create other resources
-        // let eye = glam::Vec3::new(1.5f32, -5.0, 3.0);
-        // let mx_total = Self::projection_matrix(aspect) * Self::modelview_matrix(eye);
-        // let mx_ref: &[f32; 16] = mx_total.as_ref();
-        // let uniform_buf = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        //     label: Some("Uniform Buffer"),
-        //     contents: bytemuck::cast_slice(mx_ref),
-        //     usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        // });
 
         // Create bind group
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
@@ -107,13 +95,6 @@ impl RenderTask {
 
         let pipeline = Self::create_render_pipeline(device.clone(), surface_config.clone(), &shader);
 
-        // let pipeline_wire = if device.features().contains(wgpu::Features::POLYGON_MODE_LINE) {
-        //     let pipeline_wire = Self::create_wireframe_pipeline(device.clone(), surface_config.clone(), &shader);
-        //     Some(pipeline_wire)
-        // } else {
-        //     None
-        // };
-
         // Done
         RenderTask {
             vertex_buf,
@@ -122,7 +103,6 @@ impl RenderTask {
             bind_group,
             uniform_buf,
             pipeline,
-            //pipeline_wire,
         }
     }
 
@@ -170,23 +150,6 @@ impl RenderTask {
             .collect()
     }
 
-    /// Generates a projection matrix to use with this render task.
-    // fn projection_matrix(aspect_ratio: f32) -> glam::Mat4 {
-    //     glam::Mat4::perspective_rh(consts::FRAC_PI_4, aspect_ratio, 1.0, 10.0)
-    // }
-
-    /// Generates a modelview matrix to use with this render task.
-    /// Recommended initial eye position is around glam::Vec3(1.5f32, -5.0, 3.0).
-    // fn modelview_matrix(eye: glam::Vec3) -> glam::Mat4
-    // {
-    //     glam::Mat4::look_at_rh(
-    //         eye,
-    //         //glam::Vec3::new(1.5f32, -5.0, 3.0),
-    //         glam::Vec3::ZERO,
-    //         glam::Vec3::Z,
-    //     )
-    // }
-
     /// Returns the buffer layout to use with this render task.
     fn get_vertex_buffer_layout() -> wgpu::VertexBufferLayout<'static> {
         let vertex_size = size_of::<Vertex>();
@@ -227,6 +190,7 @@ impl RenderTask {
         bind_group_layout
     }
 
+    /// Returns the pipeline layout suitable for this task.
     fn get_pipeline_layout(device: &wgpu::Device) -> wgpu::PipelineLayout {
         let bind_group_layout = Self::get_bind_group_layout(device);
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -237,6 +201,7 @@ impl RenderTask {
         pipeline_layout
     }
 
+    /// Creates a rendering pipeline suitable for this task.
     fn create_render_pipeline(
             device: Arc<wgpu::Device>,
             surface_config: wgpu::SurfaceConfiguration,
@@ -273,56 +238,6 @@ impl RenderTask {
                 cache: None,
             }
         )
-    }
-
-    pub fn create_wireframe_pipeline(
-            device: Arc<wgpu::Device>,
-            surface_config: wgpu::SurfaceConfiguration,
-            shader: &wgpu::ShaderModule
-        ) -> wgpu::RenderPipeline
-    {
-        let vertex_buffer_layout = Self::get_vertex_buffer_layout();
-
-        let pipeline_layout = Self::get_pipeline_layout(&device);
-
-        let pipeline_wire = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: None,
-            layout: Some(&pipeline_layout),
-            vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: Some("vs_main"),
-                compilation_options: Default::default(),
-                buffers: &[ vertex_buffer_layout ],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: Some("fs_wire"),
-                compilation_options: Default::default(),
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: surface_config.view_formats[0],
-                    blend: Some(wgpu::BlendState {
-                        color: wgpu::BlendComponent {
-                            operation: wgpu::BlendOperation::Add,
-                            src_factor: wgpu::BlendFactor::SrcAlpha,
-                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                        },
-                        alpha: wgpu::BlendComponent::REPLACE,
-                    }),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-            }),
-            primitive: wgpu::PrimitiveState {
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Back),
-                polygon_mode: wgpu::PolygonMode::Line,
-                ..Default::default()
-            },
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState::default(),
-            multiview_mask: None,
-            cache: None,
-        });
-        pipeline_wire
     }
 
     /// Submits a GPU work that clears the screen/frame.
@@ -415,10 +330,6 @@ impl RenderTask {
 
         rpass.insert_debug_marker("Draw!");
         rpass.draw_indexed(0..self.index_count as u32, 0, 0..1);
-        // if let Some(ref pipe) = self.pipeline_wire {
-        //     rpass.set_pipeline(pipe);
-        //     rpass.draw_indexed(0..self.index_count as u32, 0, 0..1);
-        // }
 
         // indicate that the render pass is complete
         drop(rpass);

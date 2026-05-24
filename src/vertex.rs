@@ -5,9 +5,9 @@ use bytemuck::{Pod, Zeroable};
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 pub struct Vertex {
-    _pos: [f32; 4],
-    _tex_coord: [f32; 2],
-    _normal: [f32; 4]
+    pub pos: [f32; 4],
+    pub tex_coord: [f32; 2],
+    pub normal: [f32; 4]
 }
 
 impl Vertex {
@@ -18,17 +18,17 @@ impl Vertex {
         &[
             wgpu::VertexAttribute {
                 format: wgpu::VertexFormat::Float32x4,
-                offset: offset_of!(Vertex, _pos) as u64,            // offset=0, this is the first item
+                offset: offset_of!(Vertex, pos) as u64,            // offset=0, this is the first item
                 shader_location: 0,
             },
             wgpu::VertexAttribute {
                 format: wgpu::VertexFormat::Float32x2,
-                offset: offset_of!(Vertex, _tex_coord) as u64,       // offset = 4*size_of(f32) = 4*4 = 16
+                offset: offset_of!(Vertex, tex_coord) as u64,       // offset = 4*size_of(f32) = 4*4 = 16
                 shader_location: 1,
             },
             wgpu::VertexAttribute {
                 format: wgpu::VertexFormat::Float32x4,
-                offset: offset_of!(Vertex, _normal) as u64,         // offset = (4 + 2)*size_of(f32) = 6*4 = 24
+                offset: offset_of!(Vertex, normal) as u64,         // offset = (4 + 2)*size_of(f32) = 6*4 = 24
                 shader_location: 2,
             }
         ]
@@ -39,8 +39,15 @@ impl Vertex {
 /// (specified as integers but are stored as floats).
 pub fn vertex_i(pos: [i8; 3], tc: [i8; 2], normal: [i8; 3]) -> Vertex {
     Vertex {
-        _pos: [pos[0] as f32, pos[1] as f32, pos[2] as f32, 1.0],
-        _tex_coord: [tc[0] as f32, tc[1] as f32],
-        _normal: [normal[0] as f32, normal[1] as f32, normal[2] as f32, 0.0]
+        pos: [pos[0] as f32, pos[1] as f32, pos[2] as f32, 1.0],
+        tex_coord: [tc[0] as f32, tc[1] as f32],
+        normal: [normal[0] as f32, normal[1] as f32, normal[2] as f32, 0.0]
     }
+}
+
+/// Information of where to put an instance of a rendered object.
+#[repr(C)]
+#[derive(Clone, Copy, Pod, Zeroable)]
+pub struct RenderInstanceData {
+    pub pos: [f32; 4]
 }

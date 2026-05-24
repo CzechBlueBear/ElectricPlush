@@ -1,9 +1,8 @@
 use std::{
     sync::Arc
 };
-use wgpu::{ BufferDescriptor, BufferUsages };
 use crate::{
-    camera::Camera, camera::CameraUniform,
+    camera::Camera,
     render_task::RenderTask
 };
 use winit::{
@@ -130,53 +129,9 @@ impl Renderer {
                 ..Default::default()
             });
 
-        //self.queue.submit([ self.clear_screen(&surface_view, wgpu::Color::BLUE) ]);
-
         self.cube_prefab.render(&surface_view, &self.device, &self.queue, &camera);
-
-        // let cmds = [
-        //     self.clear_screen(&surface_view, wgpu::Color::GREEN),
-        //     self.cube_prefab.render(&surface_view, &self.device, camera)
-        // ];
-
-        // self.queue.write_buffer(
-        //     &self.camera_uniform_buf,
-        //     0,
-        //     bytemuck::bytes_of(&camera_uniform));
-        // self.queue.submit(cmds);
 
         self.window.pre_present_notify();
         surface_texture.present();
-    }
-
-    /// Generates a series of commands to clear the screen to the given color.
-    pub fn clear_screen(&self, surface_view: &wgpu::TextureView, color: wgpu::Color) -> wgpu::CommandBuffer {
-        let mut encoder = self.device.create_command_encoder(&Default::default());
-
-        // Create the renderpass which will clear the screen.
-        let renderpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: None,
-            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                view: &surface_view,
-                depth_slice: None,
-                resolve_target: None,
-                ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(color),
-                    store: wgpu::StoreOp::Store,
-                },
-            })],
-            depth_stencil_attachment: None,
-            timestamp_writes: None,
-            occlusion_query_set: None,
-            multiview_mask: None,
-        });
-
-        // If you wanted to call any drawing commands, they would go here.
-
-        // End the renderpass.
-        drop(renderpass);
-
-        // return the resulting CommandBuffer
-        encoder.finish()
     }
 }

@@ -1,6 +1,7 @@
 
 use std::f32::consts;
 
+#[allow(unused)]
 #[derive(Default)]
 pub struct Camera {
 	pos: glam::Vec3,
@@ -21,16 +22,13 @@ impl Camera {
 		}
 	}
 
+	/// Builds camera matrices and returns them as a structure that is
+	/// compatible with GPU uniforms.
 	pub fn as_uniform(&self) -> CameraUniform {
 		CameraUniform {
 			projection_matrix: self.projection_matrix().to_cols_array(),
 			view_matrix: self.view_matrix().to_cols_array()
 		}
-	}
-
-	pub fn export_to_uniform(&self, target: &mut CameraUniform) {
-		target.projection_matrix = self.projection_matrix().to_cols_array();
-		target.view_matrix = self.view_matrix().to_cols_array();
 	}
 
 	/// Generates a projection matrix reflecting the current camera state.
@@ -47,7 +45,6 @@ impl Camera {
 	pub fn view_matrix(&self) -> glam::Mat4 {
         glam::Mat4::look_at_rh(
             self.pos,
-            //glam::Vec3::new(1.5f32, -5.0, 3.0),
             glam::Vec3::ZERO,
             glam::Vec3::Z,
         )
