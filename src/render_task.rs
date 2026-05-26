@@ -1,4 +1,3 @@
-use bytemuck::{ Pod, Zeroable };
 use wgpu::{
     BufferAddress, BufferDescriptor, BufferUsages
 };
@@ -7,9 +6,13 @@ use std::{
     num::NonZero
 };
 use crate::{
-    cube::cube, vertex::Vertex, camera::Camera, camera::CameraUniform
+    cube::cube, vertex::Vertex, camera::Camera, camera::CameraUniform,
+    vertex::RenderInstanceData,
 };
 use wgpu::{util::DeviceExt};
+
+/// Maximum number of instances of a rendered object to be rendered at a time.
+const MAX_INSTANCES: usize = 16384;
 
 /// A single item of a rendering job.
 pub struct RenderTask {
@@ -18,6 +21,9 @@ pub struct RenderTask {
     index_count: usize,
     bind_group: wgpu::BindGroup,
     uniform_buf: wgpu::Buffer,
+    instance_buf: wgpu::Buffer,
+    instances: usize,
+    instance_data: [RenderInstanceData; MAX_INSTANCES],
     pipeline: wgpu::RenderPipeline,
 }
 
@@ -26,7 +32,8 @@ impl RenderTask {
     pub fn new(
         device: Arc<wgpu::Device>,
         queue: Arc<wgpu::Queue>,
-        surface_config: wgpu::SurfaceConfiguration
+        surface_config: wgpu::SurfaceConfiguration,
+        instances: usize
     ) -> Self {
         // generate vertices for the mesh
         let (vertex_data, index_data) = Self::create_vertices_from_cube();
@@ -75,6 +82,14 @@ impl RenderTask {
             mapped_at_creation: false,
         });
 
+        // Create the buffer for holding the per-instance data
+        let instance_buf = device.create_buffer(&BufferDescriptor {
+            label: Some("Instance Buffer"),
+            size: (core::mem::size_of::<RenderInstanceData>() * MAX_INSTANCES) as u64,
+            usage: BufferUsages::VERTEX | BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+
         // Create bind group
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &bind_group_layout,
@@ -102,6 +117,9 @@ impl RenderTask {
             index_count: index_data.len(),
             bind_group,
             uniform_buf,
+            instance_buf,
+            instances,
+            instance_data: [RenderInstanceData::default(); MAX_INSTANCES],
             pipeline,
         }
     }
@@ -150,15 +168,18 @@ impl RenderTask {
             .collect()
     }
 
-    /// Returns the buffer layout to use with this render task.
-    fn get_vertex_buffer_layout() -> wgpu::VertexBufferLayout<'static> {
-        let vertex_size = size_of::<Vertex>();
+    pub const VERTEX_BUFFER_LAYOUT: [wgpu::VertexBufferLayout<'_>; 2] = [
         wgpu::VertexBufferLayout {
-            array_stride: vertex_size as wgpu::BufferAddress,
+            array_stride: size_of::<Vertex>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: Vertex::attributes(),
+            attributes: &Vertex::ATTRIBUTES,
+        },
+        wgpu::VertexBufferLayout {
+            array_stride: size_of::<RenderInstanceData>() as wgpu::BufferAddress,
+            step_mode: wgpu::VertexStepMode::Instance,
+            attributes: &RenderInstanceData::ATTRIBUTES
         }
-    }
+    ];
 
     /// Returns the bind group layout to use with this render task.
     fn get_bind_group_layout(device: &wgpu::Device) -> wgpu::BindGroupLayout {
@@ -208,8 +229,6 @@ impl RenderTask {
             shader: &wgpu::ShaderModule
         ) -> wgpu::RenderPipeline
     {
-        let vertex_buffer_layout = Self::get_vertex_buffer_layout();
-
         let pipeline_layout = Self::get_pipeline_layout(&device);
 
         device.create_render_pipeline(
@@ -220,7 +239,7 @@ impl RenderTask {
                     module: &shader,
                     entry_point: Some("vs_main"),
                     compilation_options: Default::default(),
-                    buffers: &[ vertex_buffer_layout ],
+                    buffers: &Self::VERTEX_BUFFER_LAYOUT,
                 },
                 fragment: Some(wgpu::FragmentState {
                     module: &shader,
@@ -293,6 +312,23 @@ impl RenderTask {
         queue.submit([]);
     }
 
+    fn submit_instance_setup_work(&self,
+        _view: &wgpu::TextureView,
+        _device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        _camera: &Camera)
+    {
+        // upload new positions of instances into GPU
+        queue.write_buffer_with(
+            &self.instance_buf,
+            0 as BufferAddress,
+            NonZero::new((size_of::<RenderInstanceData>() * MAX_INSTANCES) as u64).unwrap()
+        )
+            .expect("instance data buffer should be writable")
+            .copy_from_slice(bytemuck::bytes_of(&self.instance_data));    // SUS! check!
+        queue.submit([]);
+    }
+
     pub fn render(&mut self,
         view: &wgpu::TextureView,
         device: &wgpu::Device,
@@ -301,6 +337,7 @@ impl RenderTask {
     {
         self.submit_frame_clearing_work(view, device, queue);
         self.submit_camera_uniform_setup_work(view, device, queue, camera);
+        self.submit_instance_setup_work(view, device, queue, camera);
 
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
@@ -326,10 +363,11 @@ impl RenderTask {
         rpass.set_bind_group(0, &self.bind_group, &[]);
         rpass.set_index_buffer(self.index_buf.slice(..), wgpu::IndexFormat::Uint16);
         rpass.set_vertex_buffer(0, self.vertex_buf.slice(..));
+        rpass.set_vertex_buffer(1, self.instance_buf.slice(..));
         rpass.pop_debug_group();
 
         rpass.insert_debug_marker("Draw!");
-        rpass.draw_indexed(0..self.index_count as u32, 0, 0..1);
+        rpass.draw_indexed(0..self.index_count as u32, 0, 0..(self.instances as u32));
 
         // indicate that the render pass is complete
         drop(rpass);
@@ -339,5 +377,13 @@ impl RenderTask {
 
         // submit it for rendering
         queue.submit([ cmds ]);
+    }
+
+    pub fn set_active_instances(&mut self, count: u32) {
+        self.instances = count as usize;
+    }
+
+    pub fn set_instance_position(&mut self, instance_number: u32, pos: [f32; 4]) {
+        self.instance_data[instance_number as usize].pos = pos;
     }
 }

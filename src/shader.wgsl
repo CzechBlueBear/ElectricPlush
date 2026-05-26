@@ -8,6 +8,10 @@ struct CameraUniform {
     view_matrix: mat4x4<f32>,
 }
 
+struct InstanceData {
+    position: vec4<f32>,
+}
+
 @group(0)
 @binding(0)
 var<uniform> camera: CameraUniform;
@@ -16,11 +20,12 @@ var<uniform> camera: CameraUniform;
 fn vs_main(
     @location(0) position: vec4<f32>,
     @location(1) tex_coord: vec2<f32>,
-    @location(2) normal: vec4<f32>
+    @location(2) normal: vec4<f32>,
+    @location(5) instance_position: vec4<f32>
 ) -> VertexOutput {
     var result: VertexOutput;
     result.tex_coord = tex_coord;
-    result.position = camera.perspective_matrix * camera.view_matrix * position;
+    result.position = camera.perspective_matrix * camera.view_matrix * (position + instance_position);
     return result;
 }
 

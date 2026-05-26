@@ -1,5 +1,5 @@
 use core::mem::offset_of;
-use bytemuck::{Pod, Zeroable};
+use bytemuck::{NoUninit, Pod, Zeroable};
 
 /// A single vertex as stored in memory for the GPU to use.
 #[repr(C)]
@@ -14,8 +14,8 @@ impl Vertex {
 
     /// Returns an array of VertexAttribute structures describing the type
     /// and order of attributes in a Vertex, and which shader slot they belong to.
-    pub fn attributes() -> &'static [wgpu::VertexAttribute; 3] {
-        &[
+    pub const ATTRIBUTES: [wgpu::VertexAttribute; 3] = {
+        [
             wgpu::VertexAttribute {
                 format: wgpu::VertexFormat::Float32x4,
                 offset: offset_of!(Vertex, pos) as u64,            // offset=0, this is the first item
@@ -32,7 +32,7 @@ impl Vertex {
                 shader_location: 2,
             }
         ]
-    }
+    };
 }
 
 /// Generates a Vertex structure initialized to the given values
@@ -47,7 +47,17 @@ pub fn vertex_i(pos: [i8; 3], tc: [i8; 2], normal: [i8; 3]) -> Vertex {
 
 /// Information of where to put an instance of a rendered object.
 #[repr(C)]
-#[derive(Clone, Copy, Pod, Zeroable)]
+#[derive(Default, Clone, Copy, Pod, Zeroable)]
 pub struct RenderInstanceData {
     pub pos: [f32; 4]
+}
+
+impl RenderInstanceData {
+    pub const ATTRIBUTES: [wgpu::VertexAttribute; 1] = [
+        wgpu::VertexAttribute {
+            format: wgpu::VertexFormat::Float32x4,
+            offset: offset_of!(Vertex, pos) as u64,            // offset=0, this is the first item
+            shader_location: 5,
+        },
+    ];
 }

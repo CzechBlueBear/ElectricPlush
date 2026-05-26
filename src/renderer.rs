@@ -66,7 +66,7 @@ impl Renderer {
 			size,
 			surface,
 			surface_format,
-            cube_prefab: RenderTask::new(device, queue, surface_config),
+            cube_prefab: RenderTask::new(device, queue, surface_config, 1),
 		};
 
 		renderer.configure_surface();
@@ -129,6 +129,9 @@ impl Renderer {
                 ..Default::default()
             });
 
+        self.cube_prefab.set_active_instances(3);
+        self.cube_prefab.set_instance_position(1, [2.0, 0.0, 0.0, 1.0]);
+        self.cube_prefab.set_instance_position(2, [4.0, 0.0, 0.0, 1.0]);
         self.cube_prefab.render(&surface_view, &self.device, &self.queue, &camera);
 
         self.window.pre_present_notify();
